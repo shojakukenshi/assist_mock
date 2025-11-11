@@ -7,13 +7,13 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="h-full" data-controller="admin-layout">
     <!-- サイドバーオーバーレイ (モバイル) -->
-    <div class="fixed inset-0 bg-gray-900 bg-opacity-75 z-40 lg:hidden hidden"
+    <div class="fixed inset-0 bg-gray-900/75 z-40 lg:hidden hidden"
          data-admin-layout-target="overlay"
          data-action="click->admin-layout#closeSidebar"></div>
 
@@ -170,7 +170,7 @@
               </button>
 
               <!-- 通知ドロップダウン -->
-              <div class="hidden origin-top-right absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+              <div class="hidden origin-top-right absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black/5 focus:outline-none"
                    data-dropdown-target="menu">
                 <div class="p-4">
                   <h3 class="text-sm font-semibold text-gray-900 mb-3">通知</h3>
@@ -218,7 +218,7 @@
               </button>
 
               <!-- ユーザードロップダウン -->
-              <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+              <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black/5 focus:outline-none"
                    data-dropdown-target="menu">
                 <div class="py-1">
                   <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">マイページ</a>
