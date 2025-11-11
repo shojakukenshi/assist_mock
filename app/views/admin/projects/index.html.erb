@@ -1,0 +1,147 @@
+<div class="space-y-6">
+  <!-- ページタイトル + アクションボタン -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">案件管理</h1>
+      <p class="mt-1 text-sm text-gray-500">派遣・紹介案件の管理</p>
+    </div>
+    <div class="flex space-x-3">
+      <button class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        フィルター
+      </button>
+      <%= link_to new_admin_project_path, class: "btn-primary" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        新規案件登録
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ステータス概要カード -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <div class="card">
+      <div class="p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">進行中</p>
+            <p class="mt-1 text-3xl font-semibold text-gray-900">12</p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-lg">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">募集中</p>
+            <p class="mt-1 text-3xl font-semibold text-gray-900">5</p>
+          </div>
+          <div class="p-3 bg-yellow-100 rounded-lg">
+            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">完了</p>
+            <p class="mt-1 text-3xl font-semibold text-gray-900">28</p>
+          </div>
+          <div class="p-3 bg-blue-100 rounded-lg">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案件一覧（カード表示） -->
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @projects.each do |project| %>
+      <div class="card group cursor-pointer">
+        <div class="p-6">
+          <!-- ステータスバッジ -->
+          <div class="flex items-center justify-between mb-4">
+            <% if project[:status] == "進行中" %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                <%= project[:status] %>
+              </span>
+            <% else %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                <%= project[:status] %>
+              </span>
+            <% end %>
+            <button class="text-gray-400 hover:text-gray-600">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- 案件名 -->
+          <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            <%= project[:name] %>
+          </h3>
+
+          <!-- クライアント名 -->
+          <div class="flex items-center text-sm text-gray-500 mb-4">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <%= project[:client] %>
+          </div>
+
+          <!-- プロジェクト情報 -->
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">配置人数</span>
+              <span class="font-medium text-gray-900"><%= project[:staff_count] %>名</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">期間</span>
+              <span class="font-medium text-gray-900"><%= project[:start_date] %> 〜</span>
+            </div>
+          </div>
+
+          <!-- プログレスバー -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+              <span>進捗率</span>
+              <span>65%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+            </div>
+          </div>
+
+          <!-- アクションボタン -->
+          <div class="flex space-x-2">
+            <%= link_to admin_project_path(project[:id]), class: "flex-1 text-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100" do %>
+              詳細
+            <% end %>
+            <%= link_to edit_admin_project_path(project[:id]), class: "flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" do %>
+              編集
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
