@@ -1,4 +1,4 @@
-<div class="space-y-6" data-controller="support-chat tab">
+<div class="space-y-6" data-controller="support-chat tab support-detail">
   <!-- ページヘッダー -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -104,7 +104,9 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% @inquiries.each do |inquiry| %>
-              <tr class="hover:bg-gray-50">
+              <tr class="hover:bg-gray-50 cursor-pointer"
+                  data-action="click->support-detail#open"
+                  data-support='<%= inquiry.to_json %>'>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   <%= inquiry[:ticket_number] %>
                 </td>
@@ -312,4 +314,120 @@
       </form>
     </div>
   </div>
+
+  <!-- 詳細パネル（スライドイン） -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-support-detail-target="panel">
+    <!-- ヘッダー -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">サポートリクエスト詳細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->support-detail#closePanel">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- コンテンツ -->
+    <div class="p-6 space-y-6">
+      <!-- 基本情報 -->
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h3 class="text-2xl font-bold text-gray-900 mb-2" data-support-detail-target="title">-</h3>
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span data-support-detail-target="staffName">-</span>
+            <span>·</span>
+            <span data-support-detail-target="staffCode">-</span>
+            <span>·</span>
+            <span data-support-detail-target="ticketNumber">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ステータスと優先度 -->
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <dt class="text-xs font-medium text-gray-500 mb-1">ステータス</dt>
+          <span data-support-detail-target="status" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full">-</span>
+        </div>
+        <div class="flex-1">
+          <dt class="text-xs font-medium text-gray-500 mb-1">優先度</dt>
+          <span data-support-detail-target="priority" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full">-</span>
+        </div>
+      </div>
+
+      <!-- リクエスト詳細 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          リクエスト詳細
+        </h4>
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">カテゴリ</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-support-detail-target="category">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">問い合わせ内容</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-support-detail-target="description">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">作成日時</dt>
+            <dd class="mt-1 text-sm text-gray-900 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span data-support-detail-target="createdDate">-</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- 担当情報 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          担当情報
+        </h4>
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">担当者</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-support-detail-target="assignedTo">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">最終更新日時</dt>
+            <dd class="mt-1 text-sm text-gray-900 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span data-support-detail-target="updatedDate">-</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="flex gap-3 pt-4 border-t">
+        <button class="flex-1 btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          チャット
+        </button>
+        <button class="flex-1 btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          完了
+        </button>
+      </div>
+    </div>
+  </aside>
 </div>

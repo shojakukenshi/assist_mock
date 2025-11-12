@@ -1,4 +1,4 @@
-<div class="space-y-6" data-controller="tab">
+<div class="space-y-6" data-controller="tab insurance-detail">
   <!-- ページヘッダー -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -71,7 +71,9 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% @insurance_data.each do |data| %>
-              <tr class="hover:bg-gray-50">
+              <tr class="hover:bg-gray-50 cursor-pointer"
+                  data-action="click->insurance-detail#open"
+                  data-insurance='<%= data.to_json %>'>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:health_insurance], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:pension], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
@@ -155,4 +157,172 @@
       </div>
     </div>
   </div>
+
+  <!-- Insurance Detail Panel -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-insurance-detail-target="panel">
+    <!-- Header -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">保険料詳細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->insurance-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-6">
+      <!-- Staff Name + Status Badge -->
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2" data-insurance-detail-target="staffName"></h3>
+          <p class="text-sm text-gray-500">社員コード: <span data-insurance-detail-target="staffCode"></span></p>
+        </div>
+        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full" data-insurance-detail-target="statusBadge"></span>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex space-x-2">
+        <button class="flex-1 btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          編集
+        </button>
+        <button class="flex-1 btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          PDF出力
+        </button>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-blue-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">健康保険</div>
+          <div class="text-xl font-bold text-blue-600" data-insurance-detail-target="healthInsurance"></div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">厚生年金</div>
+          <div class="text-xl font-bold text-green-600" data-insurance-detail-target="pension"></div>
+        </div>
+        <div class="bg-purple-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">雇用保険</div>
+          <div class="text-xl font-bold text-purple-600" data-insurance-detail-target="employmentInsurance"></div>
+        </div>
+        <div class="bg-orange-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">合計</div>
+          <div class="text-xl font-bold text-orange-600" data-insurance-detail-target="totalAmount"></div>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          基本情報
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">社員名</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="employeeName"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">社員コード</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="employeeCode"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">保険種別</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="insuranceType"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Insurance Details -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          保険詳細
+        </h4>
+
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">保険料</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="amount"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">補償範囲</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="coverage"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">納付日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="paymentDate"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">有効期限</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="expiryDate"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Payment History -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          納付履歴
+        </h4>
+
+        <div class="space-y-3">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h5 class="font-medium text-gray-900">2025年度</h5>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                確定
+              </span>
+            </div>
+            <div class="text-sm space-y-1">
+              <div class="flex justify-between">
+                <span class="text-gray-600">健康保険</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="healthInsuranceHistory"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">厚生年金</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="pensionHistory"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">雇用保険</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="employmentInsuranceHistory"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+          </svg>
+          備考
+        </h4>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600" data-insurance-detail-target="notes">備考はありません</p>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>

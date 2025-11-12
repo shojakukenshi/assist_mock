@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" data-controller="payroll-detail">
   <!-- ページヘッダー -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -62,7 +62,9 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <% @payrolls.each do |payroll| %>
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-50 cursor-pointer"
+                data-action="click->payroll-detail#open"
+                data-payroll='<%= payroll.to_json %>'>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-medium text-gray-900"><%= payroll[:employee_name] %></div>
                 <div class="text-xs text-gray-500"><%= payroll[:employee_code] %></div>
@@ -126,4 +128,133 @@
       <% end %>
     </div>
   </div>
+
+  <!-- 詳細ペインオーバーレイ -->
+  <div class="fixed inset-0 bg-gray-900/50 z-40 hidden"
+       data-payroll-detail-target="overlay"
+       data-action="click->payroll-detail#close"></div>
+
+  <!-- 詳細ペイン -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-payroll-detail-target="panel">
+    <!-- ヘッダー -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">給与明細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->payroll-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- コンテンツ -->
+    <div class="p-6 space-y-6">
+      <!-- 社員名 + ステータス -->
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2" data-payroll-detail-target="employeeName"></h3>
+          <p class="text-sm text-gray-500" data-payroll-detail-target="employeeCode"></p>
+        </div>
+        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full" data-payroll-detail-target="status"></span>
+      </div>
+
+      <!-- 基本情報 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          基本情報
+        </h4>
+
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">対象月</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-payroll-detail-target="month"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">部門</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-payroll-detail-target="department"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- 給与内訳 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          給与内訳
+        </h4>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50 rounded-lg p-4">
+            <div class="text-xs text-gray-600 mb-1">基本給</div>
+            <div class="text-xl font-bold text-blue-600" data-payroll-detail-target="baseSalary"></div>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-4">
+            <div class="text-xs text-gray-600 mb-1">残業代</div>
+            <div class="text-xl font-bold text-purple-600" data-payroll-detail-target="overtimePay"></div>
+          </div>
+          <div class="bg-orange-50 rounded-lg p-4">
+            <div class="text-xs text-gray-600 mb-1">手当</div>
+            <div class="text-xl font-bold text-orange-600" data-payroll-detail-target="allowances"></div>
+          </div>
+          <div class="bg-red-50 rounded-lg p-4">
+            <div class="text-xs text-gray-600 mb-1">控除額</div>
+            <div class="text-xl font-bold text-red-600" data-payroll-detail-target="deductions"></div>
+          </div>
+        </div>
+
+        <!-- 総支給額と差引支給額 -->
+        <div class="space-y-3 pt-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">総支給額</span>
+            <span class="text-lg font-bold text-gray-900" data-payroll-detail-target="totalGross"></span>
+          </div>
+          <div class="flex items-center justify-between bg-green-50 rounded-lg p-4">
+            <span class="text-base font-semibold text-green-900">差引支給額</span>
+            <span class="text-2xl font-bold text-green-600" data-payroll-detail-target="netSalary"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 支払情報 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          支払情報
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">支払予定日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-payroll-detail-target="paymentDate"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="flex space-x-2 pt-4">
+        <button class="flex-1 btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          明細印刷
+        </button>
+        <button class="flex-1 btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          PDFダウンロード
+        </button>
+      </div>
+    </div>
+  </aside>
 </div>

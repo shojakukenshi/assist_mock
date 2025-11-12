@@ -1,4 +1,4 @@
-<div class="space-y-6" data-controller="tab">
+<div class="space-y-6" data-controller="tab compliance-detail">
   <!-- ページヘッダー -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -294,7 +294,9 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% @audit_logs.each do |log| %>
-              <tr class="hover:bg-gray-50">
+              <tr class="hover:bg-gray-50 cursor-pointer"
+                  data-action="click->compliance-detail#open"
+                  data-compliance='<%= log.to_json %>'>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= log[:audit_date] %></td>
                 <td class="px-6 py-4 text-sm text-gray-900"><%= log[:audit_type] %></td>
                 <td class="px-6 py-4 text-sm text-gray-600"><%= log[:auditor] %></td>
@@ -363,4 +365,145 @@
       </table>
     </div>
   </div>
+
+  <!-- 詳細ペインオーバーレイ -->
+  <div class="fixed inset-0 bg-gray-900/50 z-40 hidden"
+       data-compliance-detail-target="overlay"
+       data-action="click->compliance-detail#close"></div>
+
+  <!-- 詳細ペイン -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-compliance-detail-target="panel">
+    <!-- ヘッダー -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">監査詳細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->compliance-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- コンテンツ -->
+    <div class="p-6 space-y-6">
+      <!-- 基本情報 -->
+      <div class="space-y-4">
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2" data-compliance-detail-target="auditType">-</h3>
+            <p class="text-sm text-gray-500">監査種別</p>
+          </div>
+          <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800"
+                data-compliance-detail-target="resultBadge">-</span>
+        </div>
+
+        <!-- クイックアクション -->
+        <div class="flex space-x-2">
+          <button class="flex-1 btn-primary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            編集
+          </button>
+          <button class="flex-1 btn-secondary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            レポート
+          </button>
+        </div>
+      </div>
+
+      <!-- 監査情報 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          監査情報
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">監査日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-compliance-detail-target="auditDate">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">監査者</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-compliance-detail-target="auditor">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">対象期間</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-compliance-detail-target="targetPeriod">-</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- 結果詳細 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          結果詳細
+        </h4>
+
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">結果</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-compliance-detail-target="result">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">指摘事項</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800"
+                    data-compliance-detail-target="findingsCount">-</span>
+            </dd>
+          </div>
+        </dl>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500 mb-2">備考</dt>
+          <dd class="text-sm text-gray-900 bg-gray-50 rounded-lg p-4" data-compliance-detail-target="remarks">-</dd>
+        </div>
+      </div>
+
+      <!-- 次回監査予定 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          次回監査予定
+        </h4>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-blue-800">次回監査日</p>
+              <p class="text-sm text-blue-700 mt-1" data-compliance-detail-target="nextAuditDate">未定</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="pt-6 border-t border-gray-200">
+        <div class="flex space-x-3">
+          <button class="flex-1 btn-primary">
+            対応記録を追加
+          </button>
+          <button class="flex-1 btn-secondary">
+            改善計画を作成
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>
