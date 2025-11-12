@@ -6,7 +6,5 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   # Basic authentication for production environment
-  http_basic_authenticate_with name: Rails.application.config.basic_auth_username,
-                                password: Rails.application.config.basic_auth_password,
-                                if: -> { Rails.env.production? }
+  http_basic_authenticate_with name: Rails.configuration.x.basic_auth.username, password: Rails.configuration.x.basic_auth.password if Rails.env.production?
 end

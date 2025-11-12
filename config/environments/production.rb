@@ -90,6 +90,6 @@ Rails.application.configure do
 
 
   # Basic Authentication credentials
-  config.basic_auth_username = "slj"
-  config.basic_auth_password = "25251111"
+  config.x.basic_auth.username = "slj"
+  config.x.basic_auth.password = "25251111"
 end
