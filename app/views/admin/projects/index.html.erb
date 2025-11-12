@@ -64,12 +64,12 @@
     <div class="card p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs font-medium text-gray-500">見積中</p>
+          <p class="text-xs font-medium text-gray-500">見積提出</p>
           <p class="mt-1 text-2xl font-bold text-yellow-600"><%= @summary[:estimating] %></p>
         </div>
         <div class="p-2 bg-yellow-100 rounded-lg">
           <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
       </div>
@@ -78,12 +78,26 @@
     <div class="card p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs font-medium text-gray-500">確定</p>
-          <p class="mt-1 text-2xl font-bold text-green-600"><%= @summary[:confirmed] %></p>
+          <p class="text-xs font-medium text-gray-500">確定/手配中</p>
+          <p class="mt-1 text-2xl font-bold text-purple-600"><%= @summary[:arranging] %></p>
+        </div>
+        <div class="p-2 bg-purple-100 rounded-lg">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-gray-500">進行中</p>
+          <p class="mt-1 text-2xl font-bold text-green-600"><%= @summary[:in_progress] %></p>
         </div>
         <div class="p-2 bg-green-100 rounded-lg">
           <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
       </div>
@@ -97,21 +111,7 @@
         </div>
         <div class="p-2 bg-blue-100 rounded-lg">
           <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="card p-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs font-medium text-gray-500">失注</p>
-          <p class="mt-1 text-2xl font-bold text-red-600"><%= @summary[:lost] %></p>
-        </div>
-        <div class="p-2 bg-red-100 rounded-lg">
-          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
       </div>
@@ -218,8 +218,144 @@
     </div>
   </div>
 
-  <!-- 案件一覧テーブル -->
-  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+  <!-- カンバンボード -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-gray-900">案件進捗カンバン</h2>
+    </div>
+
+    <!-- カンバンレーン -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <% @statuses.each do |status| %>
+        <%
+          # ステータスに応じた色とスタイル
+          status_colors = {
+            "商談中" => { bg: "bg-orange-50", border: "border-orange-300", header_bg: "bg-orange-100", header_text: "text-orange-900", badge_bg: "bg-orange-500" },
+            "見積提出" => { bg: "bg-yellow-50", border: "border-yellow-300", header_bg: "bg-yellow-100", header_text: "text-yellow-900", badge_bg: "bg-yellow-500" },
+            "確定/手配中" => { bg: "bg-purple-50", border: "border-purple-300", header_bg: "bg-purple-100", header_text: "text-purple-900", badge_bg: "bg-purple-500" },
+            "進行中" => { bg: "bg-green-50", border: "border-green-300", header_bg: "bg-green-100", header_text: "text-green-900", badge_bg: "bg-green-500" },
+            "完了" => { bg: "bg-blue-50", border: "border-blue-300", header_bg: "bg-blue-100", header_text: "text-blue-900", badge_bg: "bg-blue-500" }
+          }
+          colors = status_colors[status]
+          projects_in_status = @projects.select { |p| p[:status] == status }
+        %>
+
+        <!-- カンバンレーン -->
+        <div class="flex flex-col <%= colors[:bg] %> rounded-xl border-2 <%= colors[:border] %> shadow-sm min-h-[600px]">
+          <!-- レーンヘッダー -->
+          <div class="<%= colors[:header_bg] %> px-4 py-3 rounded-t-xl border-b-2 <%= colors[:border] %>">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-bold <%= colors[:header_text] %>"><%= status %></h3>
+                <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white <%= colors[:badge_bg] %> rounded-full">
+                  <%= projects_in_status.length %>
+                </span>
+              </div>
+            </div>
+            <div class="mt-1 text-xs <%= colors[:header_text] %> opacity-75">
+              ¥<%= number_with_delimiter(projects_in_status.sum { |p| p[:amount] || 0 }) %>
+            </div>
+          </div>
+
+          <!-- カード一覧 -->
+          <div class="flex-1 p-3 space-y-3 overflow-y-auto">
+            <% projects_in_status.each do |project| %>
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                   data-project-id="<%= project[:id] %>"
+                   data-action="click->project-detail#open">
+                <!-- カードヘッダー -->
+                <div class="p-4">
+                  <div class="flex items-start justify-between mb-2">
+                    <h4 class="text-sm font-bold text-gray-900 line-clamp-2 flex-1"><%= project[:name] %></h4>
+                  </div>
+
+                  <!-- クライアント -->
+                  <div class="flex items-center gap-1 mb-3">
+                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span class="text-xs text-gray-600 truncate"><%= project[:client_name] %></span>
+                  </div>
+
+                  <!-- イベント詳細 -->
+                  <div class="space-y-1.5 mb-3">
+                    <% if project[:venue].present? %>
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="text-xs text-gray-600 truncate"><%= project[:venue] %></span>
+                      </div>
+                    <% end %>
+
+                    <% if project[:event_date].present? %>
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span class="text-xs text-gray-600"><%= project[:event_date] %></span>
+                      </div>
+                    <% end %>
+
+                    <div class="flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span class="text-xs text-gray-900 font-semibold"><%= project[:staff_count] %>名</span>
+                    </div>
+                  </div>
+
+                  <!-- 金額 -->
+                  <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="text-lg font-bold text-gray-900">
+                      ¥<%= number_with_delimiter(project[:amount]) %>
+                    </div>
+                    <% if project[:tags].present? && project[:tags].any? %>
+                      <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <%= project[:tags].first %>
+                      </span>
+                    <% end %>
+                  </div>
+
+                  <!-- 担当者 -->
+                  <div class="mt-3 flex items-center justify-between text-xs">
+                    <span class="text-gray-500"><%= project[:sales_rep] %></span>
+                    <span class="text-gray-400"><%= project[:last_updated] %></span>
+                  </div>
+
+                  <!-- スタッフマッチングボタン -->
+                  <% if project[:status] == "確定/手配中" && [1].include?(project[:id]) %>
+                    <%= link_to staff_matching_admin_project_path(project[:id]),
+                        class: "mt-3 w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors",
+                        onclick: "event.stopPropagation()" do %>
+                      <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      スタッフマッチング
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- 空の状態 -->
+            <% if projects_in_status.empty? %>
+              <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p class="text-sm">案件なし</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 案件一覧テーブル（参考用・非表示） -->
+  <div class="hidden bg-white shadow-sm rounded-xl overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
