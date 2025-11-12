@@ -15,6 +15,13 @@ class Admin::Staffing::AssignmentsController < Admin::BaseController
       avg_assignment_days: 3.2
     }
 
+    # 応募通知（モックデータ）
+    @pending_applications = [
+      { id: 1, project_id: 1, project_name: "東京モーターショー2025", staff_name: "山田太郎", staff_id: 1, applied_at: "2025-11-10 10:30", status: "pending" },
+      { id: 2, project_id: 4, project_name: "企業展示会サポート", staff_name: "佐藤次郎", staff_id: 2, applied_at: "2025-11-11 14:20", status: "pending" },
+      { id: 3, project_id: 11, project_name: "年末チャリティーコンサート", staff_name: "鈴木花子", staff_id: 3, applied_at: "2025-11-12 09:15", status: "pending" }
+    ]
+
     # 配置待ち案件一覧
     @projects = [
       {

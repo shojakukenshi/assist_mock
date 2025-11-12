@@ -1,0 +1,15 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">マスタ管理</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% @masters.each do |master| %>
+      <a href="<%= master[:path] %>" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= master[:name] %></h3>
+        <p class="text-sm text-gray-600 mb-4"><%= master[:description] %></p>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span><%= master[:count] %>件</span>
+          <span>最終更新: <%= master[:last_updated] %></span>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</div>

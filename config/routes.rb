@@ -62,10 +62,41 @@ Rails.application.routes.draw do
 
     # システム設定
     namespace :settings do
+      # 社員管理
       resources :employees
-      resources :masters
-      resources :batch_processes
-      get "profile", to: "profile#show"
+
+      # マスタ管理
+      resources :masters, only: [:index] do
+        collection do
+          get :belongings           # 持ち物マスター
+          get :appearance           # 身だしなみマスター
+          get :ip_addresses         # アクセスIPアドレス
+          get :notification_emails  # 案件応募通知メールアドレスマスター
+          get :salary_tables        # 支払い給与表
+          get :mynumber_purposes    # マイナンバー利用目的マスター
+        end
+      end
+
+      # バッチ・集計管理
+      resources :batches, only: [:index] do
+        collection do
+          get :bulk_add_remarks           # スタッフ備考欄一括追加入力
+          post :execute_bulk_add_remarks
+          get :bulk_temporary_delete      # スタッフ一括一時削除
+          post :execute_bulk_delete
+          get :bulk_change_assignee       # スタッフの担当者を一括変更
+          post :execute_bulk_change_assignee
+          get :calculate_registration_ratio   # 登録者数・稼働数の比率算出
+          get :calculate_rotation_rate        # 稼働単価・回転率・在庫回転率
+        end
+      end
+
+      # マイページ
+      get "mypage", to: "mypage#index"
+      get "mypage/analytics", to: "mypage/analytics#index"
+      get "mypage/messages", to: "mypage/messages#index"
+      get "mypage/edit_message", to: "mypage/messages#edit_message"
+      post "mypage/update_message", to: "mypage/messages#update_message"
     end
   end
 end
