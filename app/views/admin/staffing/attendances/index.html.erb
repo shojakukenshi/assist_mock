@@ -1,0 +1,311 @@
+<div class="space-y-6" data-controller="attendance-approval">
+  <!-- ページヘッダー -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">勤怠管理</h1>
+      <p class="mt-1 text-sm text-gray-500">勤怠データ・承認フロー・異常検知の一元管理</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-secondary text-sm" data-action="click->attendance-approval#exportExcel">Excel取込</button>
+      <button class="btn-secondary text-sm" data-action="click->attendance-approval#exportCSV">CSV出力</button>
+      <button class="btn-primary text-sm">手動登録</button>
+    </div>
+  </div>
+
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-6">
+    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      <p class="text-xs font-medium text-blue-100">総件数</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:total_records] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+      <p class="text-xs font-medium text-yellow-100">未承認</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:pending_approval] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 text-white">
+      <p class="text-xs font-medium text-green-100">今月承認済</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:approved_this_month] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-red-500 to-red-600 text-white">
+      <p class="text-xs font-medium text-red-100">異常検知</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:anomaly_detected] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">総労働時間</p>
+      <p class="mt-2 text-xl font-bold text-gray-900"><%= number_with_delimiter(@summary[:total_hours]) %>h</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">平均労働時間</p>
+      <p class="mt-2 text-xl font-bold text-gray-900"><%= @summary[:avg_hours_per_staff] %>h</p>
+    </div>
+  </div>
+
+  <!-- 一括操作ツールバー（選択時のみ表示） -->
+  <div class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50" data-attendance-approval-target="bulkToolbar">
+    <div class="bg-blue-600 text-white rounded-xl shadow-lg px-6 py-4 flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="font-medium"><span data-attendance-approval-target="selectedCount">0</span>件選択中</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-secondary text-sm" data-action="click->attendance-approval#bulkApprove">一括承認</button>
+        <button class="btn-secondary text-sm" data-action="click->attendance-approval#openBulkRejectModal">一括差戻し</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 検索・フィルター -->
+  <div class="card p-4">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+      <input type="text" placeholder="スタッフ名で検索..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" placeholder="日付" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">全てのステータス</option>
+        <option>未承認</option>
+        <option>承認済</option>
+        <option>差戻し</option>
+      </select>
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">全ての勤務形態</option>
+        <option>通常勤務</option>
+        <option>リモート勤務</option>
+        <option>休日出勤</option>
+        <option>待機</option>
+      </select>
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">異常検知</option>
+        <option>長時間残業</option>
+        <option>打刻漏れ</option>
+        <option>休日出勤</option>
+      </select>
+      <button class="btn-secondary text-sm">検索</button>
+    </div>
+  </div>
+
+  <!-- 異常検知アラート -->
+  <% if @anomaly_alerts.any? %>
+    <div class="card p-4 bg-red-50 border border-red-200">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="text-sm font-bold text-red-900">異常検知アラート</h3>
+      </div>
+      <div class="space-y-2">
+        <% @anomaly_alerts.each do |alert| %>
+          <div class="flex items-center justify-between text-sm bg-white rounded-lg p-3">
+            <div class="flex items-center gap-3">
+              <% case alert[:severity] %>
+              <% when "高" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">高</span>
+              <% when "中" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">中</span>
+              <% when "低" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">低</span>
+              <% end %>
+              <span class="font-medium text-gray-900"><%= alert[:staff_name] %></span>
+              <span class="text-gray-600">- <%= alert[:alert_type] %>:</span>
+              <span class="text-gray-700"><%= alert[:details] %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 勤怠一覧テーブル -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600" data-action="change->attendance-approval#selectAll">
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日付</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">案件</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">勤務形態</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">開始</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">終了</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">労働時間</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">残業</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @attendances.each do |attendance| %>
+            <tr class="hover:bg-gray-50 <%= attendance[:anomaly] ? 'bg-red-50' : '' %>">
+              <td class="px-6 py-4">
+                <% if attendance[:status] == "未承認" %>
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600"
+                    value="<%= attendance[:id] %>"
+                    data-attendance-approval-target="checkbox"
+                    data-action="change->attendance-approval#toggleSelection">
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= attendance[:date] %></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= attendance[:staff_name] %></div>
+                <div class="text-xs text-gray-500"><%= attendance[:staff_code] %></div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600">
+                <%= attendance[:project_name] || "-" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <% case attendance[:work_type] %>
+                <% when "通常勤務" %>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">通常</span>
+                <% when "リモート勤務" %>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">リモート</span>
+                <% when "休日出勤" %>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">休日</span>
+                <% when "待機" %>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">待機</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                <%= attendance[:start_time] || "-" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                <%= attendance[:end_time] || "-" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                <%= attendance[:work_hours] %>h
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                <% if attendance[:overtime_hours] > 0 %>
+                  <span class="<%= attendance[:overtime_hours] > 3 ? 'text-red-600 font-bold' : 'text-orange-600' %>">
+                    <%= attendance[:overtime_hours] %>h
+                  </span>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <% case attendance[:status] %>
+                <% when "承認済" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">承認済</span>
+                <% when "未承認" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">未承認</span>
+                <% when "差戻し" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">差戻し</span>
+                <% end %>
+                <% if attendance[:anomaly] %>
+                  <div class="mt-1">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      <%= attendance[:anomaly] %>
+                    </span>
+                  </div>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <% if attendance[:status] == "未承認" %>
+                  <button
+                    class="text-green-600 hover:text-green-800 mr-2"
+                    data-action="click->attendance-approval#approve"
+                    data-attendance-id="<%= attendance[:id] %>"
+                    data-staff-name="<%= attendance[:staff_name] %>"
+                    data-date="<%= attendance[:date] %>">
+                    承認
+                  </button>
+                  <button
+                    class="text-red-600 hover:text-red-800 mr-2"
+                    data-action="click->attendance-approval#reject"
+                    data-attendance-id="<%= attendance[:id] %>"
+                    data-staff-name="<%= attendance[:staff_name] %>"
+                    data-date="<%= attendance[:date] %>">
+                    差戻し
+                  </button>
+                <% end %>
+                <button
+                  class="text-blue-600 hover:text-blue-800"
+                  data-action="click->attendance-approval#showDetail"
+                  data-attendance-id="<%= attendance[:id] %>">
+                  詳細
+                </button>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 月次勤怠集計 -->
+  <div class="card p-6">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">月次勤怠集計（スタッフ別）</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">出勤日数</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">総労働時間</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">残業時間</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">休日出勤</th>
+            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">欠勤</th>
+            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">遅刻</th>
+            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @monthly_summary.each do |summary| %>
+            <tr>
+              <td class="px-4 py-3">
+                <div class="text-sm font-medium text-gray-900"><%= summary[:staff_name] %></div>
+                <div class="text-xs text-gray-500"><%= summary[:staff_code] %></div>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= summary[:work_days] %>日</td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= summary[:total_hours] %>h</td>
+              <td class="px-4 py-3 text-sm text-right">
+                <span class="<%= summary[:overtime_hours] > 30 ? 'text-red-600 font-bold' : 'text-gray-900' %>">
+                  <%= summary[:overtime_hours] %>h
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= summary[:holiday_hours] %>h</td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-center"><%= summary[:absence_days] %>日</td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-center"><%= summary[:late_count] %>回</td>
+              <td class="px-4 py-3 text-center">
+                <% case summary[:status] %>
+                <% when "正常" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                <% when "要確認" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">要確認</span>
+                <% when "要注意" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">要注意</span>
+                <% when "待機中" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">待機中</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 差戻しモーダル -->
+  <div class="hidden fixed inset-0 z-50 bg-gray-900/75 flex items-center justify-center p-4" data-attendance-approval-target="modal" data-action="click->attendance-approval#closeOnBackdrop">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">一括差戻し</h3>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">差戻し理由</label>
+        <textarea
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          rows="4"
+          placeholder="差戻し理由を入力してください..."
+          data-attendance-approval-target="rejectReason"></textarea>
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button class="btn-secondary text-sm" data-action="click->attendance-approval#closeModal">キャンセル</button>
+        <button class="btn-primary text-sm" data-action="click->attendance-approval#executeBulkReject">差戻し実行</button>
+      </div>
+    </div>
+  </div>
+</div>

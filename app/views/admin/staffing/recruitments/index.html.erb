@@ -1,0 +1,182 @@
+<div class="space-y-6">
+  <!-- ページヘッダー -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">採用管理</h1>
+      <p class="mt-1 text-sm text-gray-500">応募〜面接〜内定までの採用プロセスを一元管理</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-secondary text-sm">CSV取込</button>
+      <button class="btn-secondary text-sm">一括通知</button>
+      <button class="btn-primary text-sm">新規応募登録</button>
+    </div>
+  </div>
+
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      <p class="text-xs font-medium text-blue-100">総応募者数</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:total_applicants] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+      <p class="text-xs font-medium text-yellow-100">面接中</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:in_interview] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+      <p class="text-xs font-medium text-purple-100">内定送付</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:offers_sent] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 text-white">
+      <p class="text-xs font-medium text-green-100">今月採用</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:hired_this_month] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">内定率</p>
+      <p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:conversion_rate] %>%</p>
+    </div>
+  </div>
+
+  <!-- 検索・フィルター -->
+  <div class="card p-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+      <input type="text" placeholder="応募者名で検索..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">全てのポジション</option>
+        <option>システムエンジニア</option>
+        <option>Webデザイナー</option>
+        <option>プロジェクトマネージャー</option>
+      </select>
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">全てのステータス</option>
+        <option>書類選考</option>
+        <option>一次面接</option>
+        <option>二次面接</option>
+        <option>最終面接</option>
+        <option>内定</option>
+        <option>不採用</option>
+      </select>
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option value="">全ての紹介元</option>
+        <option>求人サイトA</option>
+        <option>求人サイトB</option>
+        <option>紹介</option>
+        <option>リファラル</option>
+      </select>
+      <button class="btn-secondary text-sm">検索</button>
+    </div>
+  </div>
+
+  <!-- ステータス別集計 -->
+  <div class="card p-4">
+    <h3 class="text-sm font-bold text-gray-700 mb-3">ステータス別進捗</h3>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <% @status_summary.each do |status| %>
+        <div class="bg-gray-50 rounded-lg p-3 text-center">
+          <div class="text-xs text-gray-600 mb-1"><%= status[:status] %></div>
+          <div class="text-2xl font-bold text-<%= status[:color] %>-600"><%= status[:count] %></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 応募者一覧テーブル -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">応募者</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ポジション</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">経験年数</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スキル</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">応募日</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">進捗</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">次のアクション</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @applicants.each do |applicant| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= applicant[:name] %></div>
+                <div class="text-xs text-gray-500"><%= applicant[:age] %>歳・<%= applicant[:gender] %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= applicant[:position] %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center"><%= applicant[:experience_years] %>年</td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  <% applicant[:skills].each do |skill| %>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"><%= skill %></span>
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= applicant[:applied_date] %></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="w-24">
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-gray-600"><%= applicant[:progress] %>%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-500 h-2 rounded-full" style="width: <%= applicant[:progress] %>%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <% case applicant[:status] %>
+                <% when "書類選考" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">書類選考</span>
+                <% when "一次面接" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">一次面接</span>
+                <% when "二次面接" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">二次面接</span>
+                <% when "最終面接" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">最終面接</span>
+                <% when "内定" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">内定</span>
+                <% when "不採用" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">不採用</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600"><%= applicant[:next_action] %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <button class="text-blue-600 hover:text-blue-800 mr-2">詳細</button>
+                <% if applicant[:status] != "不採用" && applicant[:status] != "内定" %>
+                  <button class="text-green-600 hover:text-green-800">面接設定</button>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 月次採用推移 -->
+  <div class="card p-6">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">月次採用推移</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">月</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">応募者数</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">面接実施</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">採用数</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @monthly_trends.each do |trend| %>
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-900"><%= trend[:month] %></td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= trend[:applicants] %>名</td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= trend[:interviewed] %>名</td>
+              <td class="px-4 py-3 text-sm font-bold text-green-600 text-right"><%= trend[:hired] %>名</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,366 @@
+<div class="space-y-6" data-controller="tab">
+  <!-- ページヘッダー -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">コンプライアンス管理</h1>
+      <p class="mt-1 text-sm text-gray-500">派遣法・労働法対応・監査・資格管理の一元化</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-secondary text-sm">監査レポート</button>
+      <button class="btn-secondary text-sm">PDF出力</button>
+      <button class="btn-primary text-sm">新規監査</button>
+    </div>
+  </div>
+
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-6">
+    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      <p class="text-xs font-medium text-blue-100">総スタッフ数</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:total_staff] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 text-white">
+      <p class="text-xs font-medium text-green-100">適合</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:compliant] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+      <p class="text-xs font-medium text-yellow-100">要確認</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:attention_required] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-red-500 to-red-600 text-white">
+      <p class="text-xs font-medium text-red-100">違反リスク</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:violation_risk] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">資格期限接近</p>
+      <p class="mt-2 text-3xl font-bold text-orange-600"><%= @summary[:cert_expiring] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">監査合格率</p>
+      <p class="mt-2 text-2xl font-bold text-green-600"><%= @summary[:audit_passed_rate] %>%</p>
+    </div>
+  </div>
+
+  <!-- 違反リスクアラート -->
+  <% if @compliance_risks.any? %>
+    <div class="card p-4 bg-red-50 border border-red-200">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="text-sm font-bold text-red-900">コンプライアンス違反リスク</h3>
+      </div>
+      <div class="space-y-2">
+        <% @compliance_risks.each do |risk| %>
+          <div class="flex items-center justify-between text-sm bg-white rounded-lg p-3">
+            <div class="flex items-center gap-3">
+              <% case risk[:severity] %>
+              <% when "高" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">高</span>
+              <% when "中" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">中</span>
+              <% when "低" %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">低</span>
+              <% end %>
+              <span class="font-medium text-gray-900"><%= risk[:staff_name] %></span>
+              <span class="text-gray-600">- <%= risk[:risk_type] %>:</span>
+              <span class="text-gray-700"><%= risk[:details] %></span>
+            </div>
+            <span class="text-xs text-blue-600"><%= risk[:action_required] %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- タブナビゲーション -->
+  <div class="bg-white rounded-xl shadow-sm">
+    <div class="border-b border-gray-200 px-6">
+      <nav class="flex -mb-px space-x-8">
+        <button class="tab-button active" data-tab-target="button" data-tab-name="ledger" data-action="click->tab#switch">
+          派遣元台帳
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="labor-hours" data-action="click->tab#switch">
+          36協定チェック
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="certifications" data-action="click->tab#switch">
+          資格管理
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="audit" data-action="click->tab#switch">
+          監査履歴
+        </button>
+      </nav>
+    </div>
+
+    <!-- タブコンテンツ: 派遣元台帳 -->
+    <div class="tab-content active p-6" data-tab-target="content" data-tab-name="ledger">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">派遣先</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">契約種別</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">派遣期間</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">就業場所</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">健康診断</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @dispatch_ledgers.each do |ledger| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= ledger[:staff_name] %></div>
+                  <div class="text-xs text-gray-500"><%= ledger[:staff_code] %></div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-900"><%= ledger[:current_project] || "-" %></div>
+                  <div class="text-xs text-gray-500"><%= ledger[:client_name] || "-" %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    <%= ledger[:contract_type] %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                  <% if ledger[:dispatch_start] %>
+                    <%= ledger[:dispatch_start] %><br>〜<%= ledger[:dispatch_end] %>
+                  <% else %>
+                    -
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600"><%= ledger[:work_location] || "-" %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-xs text-gray-600">
+                  <div>前回: <%= ledger[:health_check_date] %></div>
+                  <div>次回: <%= ledger[:health_check_next] %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% case ledger[:status] %>
+                  <% when "正常" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                  <% when "要確認" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">要確認</span>
+                  <% when "要注意" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">要注意</span>
+                  <% when "待機中" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">待機中</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <button class="text-blue-600 hover:text-blue-800 mr-2">詳細</button>
+                  <button class="text-green-600 hover:text-green-800">PDF</button>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 36協定チェック -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="labor-hours">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">当月残業時間</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">月間上限</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">残り</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">年間残業時間</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">年間上限</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">リスクレベル</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @labor_hours_check.each do |check| %>
+              <tr class="hover:bg-gray-50 <%= check[:risk_level] == '高' ? 'bg-red-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= check[:staff_name] %></div>
+                  <div class="text-xs text-gray-500"><%= check[:staff_code] %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                  <span class="<%= check[:current_month_overtime] > 30 ? 'text-red-600 font-bold' : 'text-gray-900' %>">
+                    <%= check[:current_month_overtime] %>h
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= check[:limit_monthly] %>h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                  <span class="<%= check[:remaining] < 5 ? 'text-red-600 font-bold' : 'text-green-600' %>">
+                    <%= check[:remaining] %>h
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= check[:current_year_overtime] %>h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= check[:limit_yearly] %>h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% case check[:risk_level] %>
+                  <% when "高" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">高</span>
+                  <% when "中" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">中</span>
+                  <% when "低" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">低</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% case check[:status] %>
+                  <% when "正常" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                  <% when "注意" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">注意</span>
+                  <% when "要注意" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">要注意</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 資格管理 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="certifications">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">資格・免許</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">有効期限</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">残日数</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">更新状況</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @certification_expiry.each do |cert| %>
+              <tr class="hover:bg-gray-50 <%= cert[:days_remaining] < 60 ? 'bg-orange-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= cert[:staff_name] %></div>
+                  <div class="text-xs text-gray-500"><%= cert[:staff_code] %></div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900"><%= cert[:certification] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                  <%= cert[:expiry_date] %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="<%= cert[:days_remaining] < 60 ? 'text-red-600 font-bold' : 'text-gray-900' %> text-sm">
+                    <%= cert[:days_remaining] %>日
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% case cert[:status] %>
+                  <% when "要更新" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">要更新</span>
+                  <% when "注意" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">注意</span>
+                  <% when "正常" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                  <%= cert[:renewal_progress] %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <button class="text-blue-600 hover:text-blue-800 mr-2">詳細</button>
+                  <button class="text-green-600 hover:text-green-800">更新手配</button>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 監査履歴 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="audit">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">監査日</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">監査種別</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">監査者</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">対象期間</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">結果</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">指摘事項</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">備考</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @audit_logs.each do |log| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= log[:audit_date] %></td>
+                <td class="px-6 py-4 text-sm text-gray-900"><%= log[:audit_type] %></td>
+                <td class="px-6 py-4 text-sm text-gray-600"><%= log[:auditor] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                  <%= log[:target_period] %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% case log[:result] %>
+                  <% when "適合" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">適合</span>
+                  <% when "要改善" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">要改善</span>
+                  <% when "要注意" %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">要注意</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <% if log[:findings_count] > 0 %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      <%= log[:findings_count] %>件
+                    </span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">なし</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600"><%= log[:remarks] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <button class="text-blue-600 hover:text-blue-800 mr-2">詳細</button>
+                  <button class="text-green-600 hover:text-green-800">レポート</button>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- コンプライアンススコア推移 -->
+  <div class="card p-6">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">コンプライアンススコア推移</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">月</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">スコア</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">違反件数</th>
+            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">資格期限切れ</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @compliance_trends.each do |trend| %>
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-900"><%= trend[:month] %></td>
+              <td class="px-4 py-3 text-sm text-right">
+                <span class="<%= trend[:score] >= 95 ? 'text-green-600' : 'text-yellow-600' %> font-bold">
+                  <%= trend[:score] %>点
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= trend[:violations] %>件</td>
+              <td class="px-4 py-3 text-sm text-gray-900 text-right"><%= trend[:cert_expired] %>件</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
