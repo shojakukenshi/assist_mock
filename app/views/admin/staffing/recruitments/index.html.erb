@@ -12,30 +12,19 @@
     </div>
   </div>
 
-  <!-- KPIカード -->
-  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
-    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-      <p class="text-xs font-medium text-blue-100">総応募者数</p>
-      <p class="mt-2 text-3xl font-bold"><%= @summary[:total_applicants] %></p>
-    </div>
-    <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
-      <p class="text-xs font-medium text-yellow-100">面接中</p>
-      <p class="mt-2 text-3xl font-bold"><%= @summary[:in_interview] %></p>
-    </div>
-    <div class="card p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-      <p class="text-xs font-medium text-purple-100">内定送付</p>
-      <p class="mt-2 text-3xl font-bold"><%= @summary[:offers_sent] %></p>
-    </div>
-    <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 text-white">
-      <p class="text-xs font-medium text-green-100">今月採用</p>
-      <p class="mt-2 text-3xl font-bold"><%= @summary[:hired_this_month] %></p>
-    </div>
-    <div class="card p-4">
-      <p class="text-xs font-medium text-gray-500">内定率</p>
-      <p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:conversion_rate] %>%</p>
+  <!-- ステータス別集計 -->
+  <div class="card p-4">
+    <h3 class="text-sm font-bold text-gray-700 mb-3">ステータス別進捗</h3>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <% @status_summary.each do |status| %>
+        <div class="bg-gray-50 rounded-lg p-3 text-center">
+          <div class="text-xs text-gray-600 mb-1"><%= status[:status] %></div>
+          <div class="text-2xl font-bold text-<%= status[:color] %>-600"><%= status[:count] %></div>
+        </div>
+      <% end %>
     </div>
   </div>
-
+  
   <!-- 検索・フィルター -->
   <div class="card p-4">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -66,18 +55,6 @@
     </div>
   </div>
 
-  <!-- ステータス別集計 -->
-  <div class="card p-4">
-    <h3 class="text-sm font-bold text-gray-700 mb-3">ステータス別進捗</h3>
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-      <% @status_summary.each do |status| %>
-        <div class="bg-gray-50 rounded-lg p-3 text-center">
-          <div class="text-xs text-gray-600 mb-1"><%= status[:status] %></div>
-          <div class="text-2xl font-bold text-<%= status[:color] %>-600"><%= status[:count] %></div>
-        </div>
-      <% end %>
-    </div>
-  </div>
 
   <!-- 応募者一覧テーブル -->
   <div class="bg-white shadow-sm rounded-xl overflow-hidden">
