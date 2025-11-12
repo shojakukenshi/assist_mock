@@ -1,0 +1,158 @@
+<div class="space-y-6" data-controller="tab">
+  <!-- ページヘッダー -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">社会保険・税務管理</h1>
+      <p class="mt-1 text-sm text-gray-500">保険料・源泉徴収・年末調整の一元管理</p>
+    </div>
+    <div class="flex gap-2">
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option>2025年度</option>
+        <option>2024年度</option>
+      </select>
+      <button class="btn-secondary text-sm">CSV出力</button>
+      <button class="btn-primary text-sm">一括納付処理</button>
+    </div>
+  </div>
+
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">対象者数</p>
+      <p class="mt-2 text-3xl font-bold text-gray-900"><%= @summary[:total_employees] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">未申告件数</p>
+      <p class="mt-2 text-3xl font-bold text-orange-600"><%= @summary[:pending_filings] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">保険料納付額</p>
+      <p class="mt-2 text-xl font-bold text-green-600"><%= number_to_currency(@summary[:total_insurance_payment], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">税金納付額</p>
+      <p class="mt-2 text-xl font-bold text-blue-600"><%= number_to_currency(@summary[:total_tax_payment], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">進捗率</p>
+      <p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:completion_rate] %>%</p>
+    </div>
+  </div>
+
+  <!-- タブナビゲーション -->
+  <div class="bg-white rounded-xl shadow-sm">
+    <div class="border-b border-gray-200 px-6">
+      <nav class="flex -mb-px space-x-8">
+        <button class="tab-button active" data-tab-target="button" data-tab-name="insurance" data-action="click->tab#switch">
+          保険料
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="tax" data-action="click->tab#switch">
+          税金
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="yearend" data-action="click->tab#switch">
+          年末調整
+        </button>
+      </nav>
+    </div>
+
+    <!-- タブコンテンツ: 保険料 -->
+    <div class="tab-content active p-6" data-tab-target="content" data-tab-name="insurance">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">健康保険</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">厚生年金</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">雇用保険</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @insurance_data.each do |data| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:health_insurance], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:pension], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:employment_insurance], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right"><%= number_to_currency(data[:total], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '確定' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                    <%= data[:status] %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 税金 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="tax">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">所得税</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">住民税</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @tax_data.each do |data| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:income_tax], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:resident_tax], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right"><%= number_to_currency(data[:total], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '納付済' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                    <%= data[:status] %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 年末調整 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="yearend">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">扶養人数</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">保険料控除</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計控除</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">還付額</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @year_end_adjustment.each do |data| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center"><%= data[:dependents] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= data[:insurance_deduction] ? number_to_currency(data[:insurance_deduction], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= data[:total_deduction] ? number_to_currency(data[:total_deduction], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-right"><%= data[:refund_amount] ? number_to_currency(data[:refund_amount], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '提出済' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                    <%= data[:status] %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

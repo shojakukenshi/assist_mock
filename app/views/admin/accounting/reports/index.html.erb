@@ -1,0 +1,78 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div><h1 class="text-2xl font-bold">法定調書・報告書</h1><p class="text-sm text-gray-500">帳票出力・提出管理</p></div>
+    <div class="flex gap-2">
+      <select class="px-3 py-2 border rounded-lg text-sm"><option>2025年度</option><option>2024年度</option></select>
+      <button class="btn-secondary text-sm">一括PDF出力</button>
+      <button class="btn-primary text-sm">帳票作成</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div class="card p-4"><p class="text-xs text-gray-500">総帳票数</p><p class="mt-2 text-3xl font-bold"><%= @summary[:total_reports] %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">提出済</p><p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:completed] %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">作成中</p><p class="mt-2 text-3xl font-bold text-yellow-600"><%= @summary[:pending] %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">期限超過</p><p class="mt-2 text-3xl font-bold text-red-600"><%= @summary[:overdue] %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">完了率</p><p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:completion_rate] %>%</p></div>
+  </div>
+  <% if @deadline_alerts.any? %>
+  <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+    <div class="flex items-start">
+      <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-red-800">提出期限アラート</h3>
+        <div class="mt-2 space-y-1">
+          <% @deadline_alerts.each do |alert| %>
+          <div class="text-sm text-red-700"><%= alert[:report_type] %> - 期限: <%= alert[:deadline] %> (<%= alert[:days_remaining] %>日後)</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50"><tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">帳票名</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">対象期間</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">提出期限</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">作成日</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">提出日</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">出力形式</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-200">
+        <% @reports.each do |report| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 text-sm font-medium"><%= report[:report_type] %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= report[:target_period] %></td>
+          <td class="px-6 py-4 text-sm text-center <%= report[:status] == '未作成' && Date.parse(report[:deadline]) < Date.today ? 'text-red-600 font-bold' : '' %>"><%= report[:deadline] %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= report[:created_date] || '-' %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= report[:submitted_date] || '-' %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= report[:output_format] || '-' %></td>
+          <td class="px-6 py-4 text-center">
+            <% case report[:status] %>
+            <% when "提出済" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">提出済</span>
+            <% when "作成中" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">作成中</span>
+            <% when "未提出" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">未提出</span>
+            <% when "未作成" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">未作成</span>
+            <% end %>
+          </td>
+          <td class="px-6 py-4 text-right text-sm">
+            <% if report[:status] == "提出済" %>
+              <button class="text-blue-600 hover:text-blue-800">再出力</button>
+            <% elsif report[:status] == "未作成" %>
+              <button class="text-green-600 hover:text-green-800">作成</button>
+            <% else %>
+              <button class="text-blue-600 hover:text-blue-800 mr-2">PDF</button>
+              <button class="text-green-600 hover:text-green-800">提出</button>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
