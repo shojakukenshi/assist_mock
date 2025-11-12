@@ -6,6 +6,11 @@ class Admin::Staffing::AttendancesController < Admin::BaseController
       { name: "勤怠管理", path: admin_staffing_attendances_path }
     ]
 
+    # カレンダー表示用のパラメータ
+    @current_year = params[:year]&.to_i || 2025
+    @current_month = params[:month]&.to_i || 11
+    @selected_date = params[:date] # 特定日の詳細表示用
+
     # KPIサマリー
     @summary = {
       total_records: 342,
@@ -306,5 +311,76 @@ class Admin::Staffing::AttendancesController < Admin::BaseController
       { month: "2025-10", total_hours: 55100, overtime_hours: 2450, holiday_hours: 400 },
       { month: "2025-11", total_hours: 54720, overtime_hours: 2280, holiday_hours: 380 }
     ]
+
+    # カレンダーデータ生成
+    @calendar_data = generate_calendar_data(@current_year, @current_month, @attendances)
+  end
+
+  private
+
+  def generate_calendar_data(year, month, attendances)
+    require 'date'
+
+    # 月の初日と最終日
+    first_day = Date.new(year, month, 1)
+    last_day = Date.new(year, month, -1)
+
+    # 月の日数
+    days_in_month = last_day.day
+
+    # カレンダーグリッドの開始日（日曜始まり）
+    start_of_grid = first_day - first_day.wday
+
+    # カレンダーグリッドの終了日（土曜終わり）
+    end_of_grid = last_day + (6 - last_day.wday)
+
+    # 日付ごとの勤怠データをグループ化
+    attendances_by_date = attendances.group_by { |a| a[:date] }
+
+    # カレンダーグリッド用のデータ生成
+    calendar_weeks = []
+    current_date = start_of_grid
+
+    while current_date <= end_of_grid
+      week = []
+      7.times do
+        date_str = current_date.strftime("%Y-%m-%d")
+        day_attendances = attendances_by_date[date_str] || []
+
+        # 日別統計を計算
+        scheduled_count = calculate_scheduled_count(current_date)
+        working_count = day_attendances.count { |a| a[:work_type] != "待機" && a[:work_hours] > 0 }
+        absence_count = day_attendances.count { |a| a[:work_type] == "欠勤" || a[:anomaly] == "欠勤" }
+
+        week << {
+          date: current_date,
+          date_str: date_str,
+          day: current_date.day,
+          in_current_month: current_date.month == month,
+          is_today: current_date == Date.today,
+          is_weekend: current_date.wday == 0 || current_date.wday == 6,
+          scheduled_count: scheduled_count,
+          working_count: working_count,
+          absence_count: absence_count,
+          total_hours: day_attendances.sum { |a| a[:work_hours] },
+          anomaly_count: day_attendances.count { |a| a[:anomaly].present? }
+        }
+
+        current_date += 1
+      end
+      calendar_weeks << week
+    end
+
+    calendar_weeks
+  end
+
+  def calculate_scheduled_count(date)
+    # 稼働予定数を計算（実際のDBではスタッフの配置情報から算出）
+    # モックデータとして、平日は8名、週末は2名と仮定
+    if date.wday == 0 || date.wday == 6
+      2
+    else
+      8
+    end
   end
 end
