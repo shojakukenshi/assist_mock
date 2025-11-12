@@ -5,4 +5,10 @@ class Admin::Staffing::ComplianceControllerTest < ActionDispatch::IntegrationTes
     get admin_staffing_compliance_index_path
     assert_response :success
   end
+
+  test "index page should have detail panel for slide-in" do
+    get admin_staffing_compliance_index_path
+    assert_response :success
+    assert_select '[data-compliance-detail-target="panel"]', 1, "Detail panel should exist for compliance details"
+  end
 end

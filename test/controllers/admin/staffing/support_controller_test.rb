@@ -5,4 +5,10 @@ class Admin::Staffing::SupportControllerTest < ActionDispatch::IntegrationTest
     get admin_staffing_support_index_path
     assert_response :success
   end
+
+  test "index page should have detail panel for slide-in" do
+    get admin_staffing_support_index_path
+    assert_response :success
+    assert_select '[data-support-detail-target="panel"]', 1, "Detail panel should exist for support details"
+  end
 end
