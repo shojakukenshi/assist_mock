@@ -68,10 +68,10 @@
           label: "営業部門",
           id: "sales",
           items: [
-            { label: "案件進捗管理", path: admin_sales_progress_index_path },
+            { label: "案件進捗管理", path: admin_sales_pipeline_path },
             { label: "経費登録", path: admin_sales_expenses_path },
-            { label: "請求・入金管理", path: admin_sales_invoices_path },
-            { label: "営業分析レポート", path: admin_sales_reports_path }
+            { label: "請求・入金管理", path: admin_sales_billings_path },
+            { label: "営業分析レポート", path: admin_sales_analytics_path }
           ],
           active: controller_path.start_with?("admin/sales")
         } %>
