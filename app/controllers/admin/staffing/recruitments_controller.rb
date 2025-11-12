@@ -6,17 +6,8 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
       { name: "採用管理", path: admin_staffing_recruitments_path }
     ]
 
-    # KPIサマリー
-    @summary = {
-      total_applicants: 45,
-      in_interview: 12,
-      offers_sent: 5,
-      hired_this_month: 8,
-      conversion_rate: 17.8
-    }
-
-    # 応募者一覧
-    @applicants = [
+    # 全応募者データ
+    all_applicants = [
       {
         id: 1,
         name: "山田太郎",
@@ -27,7 +18,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-05",
         position: "システムエンジニア",
         experience_years: 5,
-        status: "二次面接",
+        status: "アプリ面接",
         progress: 60,
         skills: ["Ruby", "Rails", "JavaScript"],
         interview_count: 2,
@@ -45,7 +36,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-08",
         position: "Webデザイナー",
         experience_years: 3,
-        status: "一次面接",
+        status: "アプリ合格",
         progress: 40,
         skills: ["Photoshop", "Illustrator", "Figma"],
         interview_count: 1,
@@ -63,7 +54,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-01",
         position: "プロジェクトマネージャー",
         experience_years: 8,
-        status: "内定",
+        status: "採用",
         progress: 100,
         skills: ["PMI", "Agile", "Scrum"],
         interview_count: 3,
@@ -81,7 +72,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-10",
         position: "営業アシスタント",
         experience_years: 1,
-        status: "書類選考",
+        status: "アプリ応募",
         progress: 20,
         skills: ["Excel", "PowerPoint", "Word"],
         interview_count: 0,
@@ -99,7 +90,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-03",
         position: "インフラエンジニア",
         experience_years: 6,
-        status: "最終面接",
+        status: "アプリ面接",
         progress: 80,
         skills: ["AWS", "Docker", "Kubernetes"],
         interview_count: 3,
@@ -117,7 +108,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-10-28",
         position: "経理スタッフ",
         experience_years: 4,
-        status: "不採用",
+        status: "不合格",
         progress: 0,
         skills: ["簿記2級", "弥生会計", "Excel"],
         interview_count: 1,
@@ -135,7 +126,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-12",
         position: "フロントエンドエンジニア",
         experience_years: 3,
-        status: "一次面接",
+        status: "アプリ合格",
         progress: 40,
         skills: ["React", "Vue.js", "TypeScript"],
         interview_count: 1,
@@ -153,7 +144,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-06",
         position: "人事担当",
         experience_years: 7,
-        status: "二次面接",
+        status: "アプリ面接",
         progress: 60,
         skills: ["採用業務", "労務管理", "給与計算"],
         interview_count: 2,
@@ -171,7 +162,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-11",
         position: "カスタマーサポート",
         experience_years: 2,
-        status: "書類選考",
+        status: "アプリ応募",
         progress: 20,
         skills: ["コミュニケーション", "Salesforce", "Zendesk"],
         interview_count: 0,
@@ -189,7 +180,7 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-04",
         position: "マーケティング担当",
         experience_years: 6,
-        status: "内定",
+        status: "採用",
         progress: 100,
         skills: ["SEO", "Google Analytics", "SNS運用"],
         interview_count: 3,
@@ -207,12 +198,12 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-09",
         position: "データアナリスト",
         experience_years: 4,
-        status: "一次面接",
+        status: "保留",
         progress: 40,
         skills: ["Python", "SQL", "Tableau"],
         interview_count: 1,
         last_interview_date: "2025-11-19",
-        next_action: "結果待ち",
+        next_action: "追加検討中",
         referral_source: "求人サイトA"
       },
       {
@@ -225,15 +216,96 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
         applied_date: "2025-11-07",
         position: "総務スタッフ",
         experience_years: 3,
-        status: "二次面接",
+        status: "アプリ面接",
         progress: 60,
         skills: ["庶務", "備品管理", "社内イベント"],
         interview_count: 2,
         last_interview_date: "2025-11-16",
         next_action: "最終面接予定",
         referral_source: "求人サイトC"
+      },
+      {
+        id: 13,
+        name: "森田和也",
+        age: 29,
+        gender: "男性",
+        phone: "090-3333-4444",
+        email: "morita@example.com",
+        applied_date: "2025-11-13",
+        position: "営業担当",
+        experience_years: 5,
+        status: "保留",
+        progress: 30,
+        skills: ["営業", "提案", "プレゼン"],
+        interview_count: 1,
+        last_interview_date: "2025-11-21",
+        next_action: "再検討中",
+        referral_source: "求人サイトB"
+      },
+      {
+        id: 14,
+        name: "岡田麻衣",
+        age: 26,
+        gender: "女性",
+        phone: "080-4444-5555",
+        email: "okada@example.com",
+        applied_date: "2025-11-14",
+        position: "デザイナー",
+        experience_years: 4,
+        status: "不合格",
+        progress: 0,
+        skills: ["UI/UX", "Sketch", "Adobe XD"],
+        interview_count: 1,
+        last_interview_date: "2025-11-22",
+        next_action: "-",
+        referral_source: "求人サイトA"
+      },
+      {
+        id: 15,
+        name: "橋本健",
+        age: 31,
+        gender: "男性",
+        phone: "090-5555-6666",
+        email: "hashimoto@example.com",
+        applied_date: "2025-11-15",
+        position: "エンジニア",
+        experience_years: 7,
+        status: "採用",
+        progress: 100,
+        skills: ["Java", "Spring Boot", "AWS"],
+        interview_count: 3,
+        last_interview_date: "2025-11-23",
+        next_action: "入社準備中",
+        referral_source: "リファラル"
       }
     ]
+
+    # ステータスでフィルタリング
+    @selected_status = params[:status]
+    @applicants = if @selected_status.present?
+                    all_applicants.select { |a| a[:status] == @selected_status }
+                  else
+                    all_applicants
+                  end
+
+    # ステータス別集計（全データから計算）
+    @status_summary = [
+      { status: "アプリ応募", count: all_applicants.count { |a| a[:status] == "アプリ応募" }, color: "gray" },
+      { status: "アプリ合格", count: all_applicants.count { |a| a[:status] == "アプリ合格" }, color: "blue" },
+      { status: "アプリ面接", count: all_applicants.count { |a| a[:status] == "アプリ面接" }, color: "yellow" },
+      { status: "採用", count: all_applicants.count { |a| a[:status] == "採用" }, color: "green" },
+      { status: "不合格", count: all_applicants.count { |a| a[:status] == "不合格" }, color: "red" },
+      { status: "保留", count: all_applicants.count { |a| a[:status] == "保留" }, color: "orange" }
+    ]
+
+    # KPIサマリー
+    @summary = {
+      total_applicants: all_applicants.count,
+      in_interview: all_applicants.count { |a| ["アプリ合格", "アプリ面接"].include?(a[:status]) },
+      offers_sent: all_applicants.count { |a| a[:status] == "採用" },
+      hired_this_month: all_applicants.count { |a| a[:status] == "採用" },
+      conversion_rate: (all_applicants.count { |a| a[:status] == "採用" }.to_f / all_applicants.count * 100).round(1)
+    }
 
     # 月次採用状況推移
     @monthly_trends = [
@@ -243,16 +315,6 @@ class Admin::Staffing::RecruitmentsController < Admin::BaseController
       { month: "2025-09", applicants: 40, interviewed: 30, hired: 6 },
       { month: "2025-10", applicants: 45, interviewed: 35, hired: 8 },
       { month: "2025-11", applicants: 45, interviewed: 33, hired: 8 }
-    ]
-
-    # ステータス別集計
-    @status_summary = [
-      { status: "書類選考", count: 15, color: "gray" },
-      { status: "一次面接", count: 10, color: "blue" },
-      { status: "二次面接", count: 8, color: "yellow" },
-      { status: "最終面接", count: 4, color: "orange" },
-      { status: "内定", count: 5, color: "green" },
-      { status: "不採用", count: 3, color: "red" }
     ]
   end
 end

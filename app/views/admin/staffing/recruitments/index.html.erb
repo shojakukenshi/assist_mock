@@ -14,13 +14,22 @@
 
   <!-- ステータス別集計 -->
   <div class="card p-4">
-    <h3 class="text-sm font-bold text-gray-700 mb-3">ステータス別進捗</h3>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold text-gray-700">ステータス別進捗</h3>
+      <% if @selected_status.present? %>
+        <%= link_to admin_staffing_recruitments_path, class: "text-xs text-blue-600 hover:text-blue-800" do %>
+          フィルタ解除 ×
+        <% end %>
+      <% end %>
+    </div>
     <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
       <% @status_summary.each do |status| %>
-        <div class="bg-gray-50 rounded-lg p-3 text-center">
-          <div class="text-xs text-gray-600 mb-1"><%= status[:status] %></div>
-          <div class="text-2xl font-bold text-<%= status[:color] %>-600"><%= status[:count] %></div>
-        </div>
+        <%= link_to admin_staffing_recruitments_path(status: status[:status]), class: "block" do %>
+          <div class="bg-gray-50 rounded-lg p-3 text-center hover:bg-gray-100 hover:shadow-md transition cursor-pointer <%= 'ring-2 ring-' + status[:color] + '-500' if @selected_status == status[:status] %>">
+            <div class="text-xs text-gray-600 mb-1"><%= status[:status] %></div>
+            <div class="text-2xl font-bold text-<%= status[:color] %>-600"><%= status[:count] %></div>
+          </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -37,12 +46,12 @@
       </select>
       <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
         <option value="">全てのステータス</option>
-        <option>書類選考</option>
-        <option>一次面接</option>
-        <option>二次面接</option>
-        <option>最終面接</option>
-        <option>内定</option>
-        <option>不採用</option>
+        <option>アプリ応募</option>
+        <option>アプリ合格</option>
+        <option>アプリ面接</option>
+        <option>採用</option>
+        <option>不合格</option>
+        <option>保留</option>
       </select>
       <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
         <option value="">全ての紹介元</option>
@@ -102,24 +111,24 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <% case applicant[:status] %>
-                <% when "書類選考" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">書類選考</span>
-                <% when "一次面接" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">一次面接</span>
-                <% when "二次面接" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">二次面接</span>
-                <% when "最終面接" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">最終面接</span>
-                <% when "内定" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">内定</span>
-                <% when "不採用" %>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">不採用</span>
+                <% when "アプリ応募" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">アプリ応募</span>
+                <% when "アプリ合格" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">アプリ合格</span>
+                <% when "アプリ面接" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">アプリ面接</span>
+                <% when "採用" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">採用</span>
+                <% when "不合格" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">不合格</span>
+                <% when "保留" %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">保留</span>
                 <% end %>
               </td>
               <td class="px-6 py-4 text-sm text-gray-600"><%= applicant[:next_action] %></td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                 <button class="text-blue-600 hover:text-blue-800 mr-2">詳細</button>
-                <% if applicant[:status] != "不採用" && applicant[:status] != "内定" %>
+                <% if applicant[:status] != "不合格" && applicant[:status] != "採用" %>
                   <button class="text-green-600 hover:text-green-800">面接設定</button>
                 <% end %>
               </td>
