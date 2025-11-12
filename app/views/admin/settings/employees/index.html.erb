@@ -1,0 +1,69 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">社員管理</h1>
+
+  <!-- KPIサマリー -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">総社員数</div>
+      <div class="text-2xl font-bold text-gray-900"><%= @summary[:total_employees] %>名</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">稼働中</div>
+      <div class="text-2xl font-bold text-green-600"><%= @summary[:active] %>名</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">休職中</div>
+      <div class="text-2xl font-bold text-yellow-600"><%= @summary[:inactive] %>名</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">管理者</div>
+      <div class="text-2xl font-bold text-blue-600"><%= @summary[:admin_count] %>名</div>
+    </div>
+  </div>
+
+  <!-- 社員一覧テーブル -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">社員一覧</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">社員コード</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氏名</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">部署</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">役職</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">権限</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最終ログイン</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @employees.each do |employee| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= employee[:code] %></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= employee[:name] %></div>
+                <div class="text-xs text-gray-500"><%= employee[:email] %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= employee[:department] %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= employee[:position] %></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full <%= employee[:role] == 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' %>">
+                  <%= employee[:role] %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full <%= employee[:status] == '稼働中' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                  <%= employee[:status] %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= employee[:last_login] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

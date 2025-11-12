@@ -1,0 +1,29 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">持ち物マスター</h1>
+  <div class="bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">カテゴリ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">項目</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">必須</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">説明</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @belongings.each do |item| %>
+          <tr>
+            <td class="px-6 py-4 text-sm text-gray-900"><%= item[:category] %></td>
+            <td class="px-6 py-4 text-sm text-gray-900"><%= item[:item] %></td>
+            <td class="px-6 py-4 text-sm">
+              <span class="px-2 py-1 text-xs rounded-full <%= item[:required] ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' %>">
+                <%= item[:required] ? '必須' : '任意' %>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-600"><%= item[:description] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

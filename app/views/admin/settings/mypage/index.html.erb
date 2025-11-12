@@ -1,0 +1,12 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">マイページ</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% @mypage_menu.each do |menu| %>
+      <a href="<%= menu[:path] %>" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+        <div class="text-4xl mb-3"><%= menu[:icon] %></div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= menu[:name] %></h3>
+        <p class="text-sm text-gray-600"><%= menu[:description] %></p>
+      </a>
+    <% end %>
+  </div>
+</div>
