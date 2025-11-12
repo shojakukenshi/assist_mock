@@ -1,0 +1,33 @@
+{
+  "name": "assist_mock",
+  "description": "Rails 8 application with event staffing management",
+  "repository": "https://github.com/yourusername/assist_mock",
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/ruby"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini"
+    }
+  ],
+  "env": {
+    "RAILS_ENV": {
+      "value": "production"
+    },
+    "RACK_ENV": {
+      "value": "production"
+    },
+    "RAILS_LOG_TO_STDOUT": {
+      "value": "enabled"
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "value": "enabled"
+    }
+  }
+}
