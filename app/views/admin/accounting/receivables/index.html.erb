@@ -40,9 +40,12 @@
           <td class="px-6 py-4 text-sm text-center <%= rec[:alert] ? 'text-red-600 font-bold' : '' %>"><%= rec[:days_outstanding] > 0 ? "#{rec[:days_outstanding]}日" : '-' %></td>
           <td class="px-6 py-4 text-center">
             <% case rec[:status] %>
-            <% when "未入金" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">未入金</span>
-            <% when "入金済" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">入金済</span>
-            <% when "滞留" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">滞留</span>
+            <% when "未入金" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">未入金</span>
+            <% when "入金済" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">入金済</span>
+            <% when "滞留" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">滞留</span>
             <% end %>
           </td>
         </tr>
