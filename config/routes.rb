@@ -19,7 +19,18 @@ Rails.application.routes.draw do
     resources :clients
 
     # 案件管理
-    resources :projects
+    resources :projects do
+      member do
+        get :staff_matching      # スタッフマッチング画面
+        post :send_recruitment   # 募集メール送信
+      end
+      resources :applications, only: [:index, :show] do
+        member do
+          post :accept  # 配置確定
+          post :reject  # お断り
+        end
+      end
+    end
 
     # 営業部門
     namespace :sales do
