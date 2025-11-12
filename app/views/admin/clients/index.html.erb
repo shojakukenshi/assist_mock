@@ -1,4 +1,4 @@
-<div class="space-y-6" data-controller="client-detail bulk-select">
+<div class="space-y-6" data-controller="client-detail bulk-select view-switcher edit-modal">
   <!-- ページタイトル + アクションボタン -->
   <div class="flex items-center justify-between">
     <div>
@@ -12,7 +12,8 @@
         </svg>
         エクスポート
       </button>
-      <button class="btn-primary" data-action="click->dropdown#toggle">
+      <button class="btn-primary"
+              data-action="click->edit-modal#open">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -195,7 +196,38 @@
     </div>
   </div>
 
+  <!-- 表示切り替えボタン -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <span class="text-sm text-gray-700 font-medium">表示形式：</span>
+      <div class="inline-flex rounded-lg border border-gray-300 bg-white" role="group">
+        <button type="button"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-l-lg border-r border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-blue-500"
+                data-view-switcher-target="cardButton"
+                data-action="click->view-switcher#showCards">
+          <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          カード
+        </button>
+        <button type="button"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500"
+                data-view-switcher-target="tableButton"
+                data-action="click->view-switcher#showTable">
+          <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          一覧
+        </button>
+      </div>
+    </div>
+    <div class="text-sm text-gray-500">
+      全<span class="font-medium text-gray-900"><%= @clients.count %></span>件
+    </div>
+  </div>
+
   <!-- クライアント一覧（カード型） -->
+  <div data-view-switcher-target="cardView">
   <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
     <% @clients.each do |client| %>
       <div class="card group cursor-pointer"
@@ -299,6 +331,12 @@
       </div>
     <% end %>
   </div>
+  </div>
+
+  <!-- クライアント一覧（テーブル型） -->
+  <div data-view-switcher-target="tableView">
+    <%= render partial: "admin/clients/table_view" %>
+  </div>
 
   <!-- 詳細ペインオーバーレイ -->
   <div class="fixed inset-0 bg-gray-900/50 z-40 hidden"
@@ -307,4 +345,7 @@
 
   <!-- 詳細ペイン -->
   <%= render partial: "admin/clients/detail_pane" %>
+
+  <!-- 編集モーダル -->
+  <%= render partial: "admin/clients/edit_modal" %>
 </div>
