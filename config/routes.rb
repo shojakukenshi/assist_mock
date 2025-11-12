@@ -23,10 +23,10 @@ Rails.application.routes.draw do
 
     # 営業部門
     namespace :sales do
-      resources :progress
+      get "pipeline", to: "pipeline#index"
       resources :expenses
-      resources :invoices
-      resources :reports
+      resources :billings
+      get "analytics", to: "analytics#index"
     end
 
     # 手配部門

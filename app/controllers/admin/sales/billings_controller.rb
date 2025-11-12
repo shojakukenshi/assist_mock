@@ -1,0 +1,255 @@
+class Admin::Sales::BillingsController < Admin::BaseController
+  def index
+    @breadcrumbs = [
+      { name: "ダッシュボード", path: admin_dashboard_path },
+      { name: "営業管理", path: admin_sales_pipeline_path },
+      { name: "請求・入金管理", path: admin_sales_billings_path }
+    ]
+
+    # ステータスフィルター
+    @statuses = ["未請求", "請求済", "入金済", "入金遅延"]
+
+    # サマリー
+    @summary = {
+      total_billings: 18,
+      unbilled: 3,
+      billed: 6,
+      paid: 8,
+      overdue: 1,
+      total_amount: 145_800_000,
+      unpaid_amount: 45_500_000,
+      paid_amount: 100_300_000,
+      overdue_amount: 8_500_000
+    }
+
+    # 請求一覧データ
+    @billings = [
+      {
+        id: 1,
+        invoice_number: "INV-2025-11-001",
+        client: "株式会社サンプルテクノロジー",
+        project: "ECサイトリニューアルプロジェクト",
+        amount: 15_000_000,
+        tax: 1_500_000,
+        total: 16_500_000,
+        issue_date: "2025-11-01",
+        due_date: "2025-11-30",
+        payment_date: nil,
+        status: "請求済",
+        payment_method: "銀行振込",
+        notes: "初回請求分"
+      },
+      {
+        id: 2,
+        invoice_number: "INV-2025-11-002",
+        client: "株式会社ビッグデータソリューションズ",
+        project: "データ分析基盤構築",
+        amount: 20_000_000,
+        tax: 2_000_000,
+        total: 22_000_000,
+        issue_date: "2025-11-05",
+        due_date: "2025-12-05",
+        payment_date: nil,
+        status: "請求済",
+        payment_method: "銀行振込",
+        notes: "契約金"
+      },
+      {
+        id: 3,
+        invoice_number: "INV-2025-11-003",
+        client: "株式会社イノベーション",
+        project: "SaaS開発プロジェクト",
+        amount: 25_000_000,
+        tax: 2_500_000,
+        total: 27_500_000,
+        issue_date: "2025-11-10",
+        due_date: "2025-12-10",
+        payment_date: nil,
+        status: "請求済",
+        payment_method: "銀行振込",
+        notes: "プロジェクト着手金"
+      },
+      {
+        id: 4,
+        invoice_number: "INV-2025-10-015",
+        client: "株式会社エンタープライズ",
+        project: "基幹システム保守（10月分）",
+        amount: 500_000,
+        tax: 50_000,
+        total: 550_000,
+        issue_date: "2025-10-31",
+        due_date: "2025-11-30",
+        payment_date: nil,
+        status: "請求済",
+        payment_method: "銀行振込",
+        notes: "月次保守費用"
+      },
+      {
+        id: 5,
+        invoice_number: "INV-2025-10-012",
+        client: "株式会社メガコーポレーション",
+        project: "社内業務システム開発",
+        amount: 8_500_000,
+        tax: 850_000,
+        total: 9_350_000,
+        issue_date: "2025-10-20",
+        due_date: "2025-10-31",
+        payment_date: nil,
+        status: "入金遅延",
+        payment_method: "銀行振込",
+        notes: "期限経過。要催促",
+        days_overdue: 12
+      },
+      {
+        id: 6,
+        invoice_number: "INV-2025-10-008",
+        client: "株式会社セキュアシステムズ",
+        project: "セキュリティ診断・改善",
+        amount: 3_500_000,
+        tax: 350_000,
+        total: 3_850_000,
+        issue_date: "2025-10-15",
+        due_date: "2025-11-15",
+        payment_date: "2025-11-10",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "期限内入金"
+      },
+      {
+        id: 7,
+        invoice_number: "INV-2025-10-005",
+        client: "株式会社効率化ソリューション",
+        project: "業務効率化コンサル",
+        amount: 4_500_000,
+        tax: 450_000,
+        total: 4_950_000,
+        issue_date: "2025-10-10",
+        due_date: "2025-11-10",
+        payment_date: "2025-11-08",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "早期入金"
+      },
+      {
+        id: 8,
+        invoice_number: "INV-2025-09-025",
+        client: "株式会社グローバルサービス",
+        project: "営業支援システム開発",
+        amount: 12_000_000,
+        tax: 1_200_000,
+        total: 13_200_000,
+        issue_date: "2025-09-30",
+        due_date: "2025-10-30",
+        payment_date: "2025-10-28",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "完了"
+      },
+      {
+        id: 9,
+        invoice_number: "INV-2025-09-018",
+        client: "株式会社エンタープライズ",
+        project: "基幹システム保守（9月分）",
+        amount: 500_000,
+        tax: 50_000,
+        total: 550_000,
+        issue_date: "2025-09-30",
+        due_date: "2025-10-31",
+        payment_date: "2025-10-25",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "月次保守費用"
+      },
+      {
+        id: 10,
+        invoice_number: "INV-2025-09-010",
+        client: "株式会社クラウドインフラ",
+        project: "AWS環境構築支援",
+        amount: 8_000_000,
+        tax: 800_000,
+        total: 8_800_000,
+        issue_date: "2025-09-15",
+        due_date: "2025-10-15",
+        payment_date: "2025-10-12",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "完了"
+      },
+      {
+        id: 11,
+        invoice_number: "INV-2025-08-028",
+        client: "株式会社スタートアップ",
+        project: "コーポレートサイト制作",
+        amount: 2_800_000,
+        tax: 280_000,
+        total: 3_080_000,
+        issue_date: "2025-08-31",
+        due_date: "2025-09-30",
+        payment_date: "2025-09-28",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "完了"
+      },
+      {
+        id: 12,
+        invoice_number: "INV-2025-08-015",
+        client: "株式会社エンタープライズ",
+        project: "基幹システム保守（8月分）",
+        amount: 500_000,
+        tax: 50_000,
+        total: 550_000,
+        issue_date: "2025-08-31",
+        due_date: "2025-09-30",
+        payment_date: "2025-09-25",
+        status: "入金済",
+        payment_method: "銀行振込",
+        notes: "月次保守費用"
+      },
+      {
+        id: 13,
+        invoice_number: nil,
+        client: "株式会社カスタマーサポート",
+        project: "AIチャットボット導入",
+        amount: 7_500_000,
+        tax: 750_000,
+        total: 8_250_000,
+        issue_date: nil,
+        due_date: nil,
+        payment_date: nil,
+        status: "未請求",
+        payment_method: nil,
+        notes: "見積確定待ち"
+      },
+      {
+        id: 14,
+        invoice_number: nil,
+        client: "株式会社レガシーシステムズ",
+        project: "クラウド移行支援",
+        amount: 18_000_000,
+        tax: 1_800_000,
+        total: 19_800_000,
+        issue_date: nil,
+        due_date: nil,
+        payment_date: nil,
+        status: "未請求",
+        payment_method: nil,
+        notes: "契約締結後請求予定"
+      },
+      {
+        id: 15,
+        invoice_number: nil,
+        client: "株式会社クラウドインフラ",
+        project: "インフラ構築・運用",
+        amount: 9_000_000,
+        tax: 900_000,
+        total: 9_900_000,
+        issue_date: nil,
+        due_date: nil,
+        payment_date: nil,
+        status: "未請求",
+        payment_method: nil,
+        notes: "見積承認待ち"
+      }
+    ]
+  end
+end
