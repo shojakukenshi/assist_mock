@@ -1,28 +1,299 @@
-module Admin
-  class ProjectsController < BaseController
-    def index
-      add_breadcrumb "案件管理"
+class Admin::ProjectsController < Admin::BaseController
+  def index
+    @breadcrumbs = [
+      { name: "ダッシュボード", path: admin_dashboard_path },
+      { name: "案件管理", path: admin_projects_path }
+    ]
 
-      @projects = [
-        { id: 1, name: "システム開発案件A", client: "株式会社サンプル", status: "進行中", staff_count: 5, start_date: "2024-04-01", end_date: "2025-03-31" },
-        { id: 2, name: "ヘルプデスク業務", client: "○○商事", status: "募集中", staff_count: 3, start_date: "2024-06-01", end_date: "2024-12-31" },
-        { id: 3, name: "データ入力業務", client: "△△株式会社", status: "進行中", staff_count: 8, start_date: "2024-01-15", end_date: "2024-12-31" }
-      ]
-    end
+    # ステータス定義
+    @statuses = ["商談中", "見積中", "確定", "完了", "失注"]
 
-    def show
-      add_breadcrumb "案件管理", admin_projects_path
-      add_breadcrumb "案件詳細"
-    end
+    # フィルタオプション
+    @filters = {
+      statuses: @statuses,
+      sales_reps: ["佐藤花子", "田中次郎", "伊藤健太", "鈴木美咲"],
+      industries: ["IT・通信", "製造業", "金融", "小売", "サービス", "医療・福祉", "建設", "その他"]
+    }
 
-    def new
-      add_breadcrumb "案件管理", admin_projects_path
-      add_breadcrumb "新規登録"
-    end
+    # KPI集計
+    @summary = {
+      total_projects: 24,
+      negotiating: 8,
+      estimating: 5,
+      confirmed: 6,
+      completed: 3,
+      lost: 2,
+      total_value: 145_800_000,
+      monthly_revenue: 12_150_000,
+      success_rate: 75.0
+    }
 
-    def edit
-      add_breadcrumb "案件管理", admin_projects_path
-      add_breadcrumb "編集"
-    end
+    # サンプル案件データ
+    @projects = [
+      {
+        id: 1,
+        name: "ECサイトリニューアルプロジェクト",
+        client_name: "株式会社サンプルテクノロジー",
+        client_id: 1,
+        status: "確定",
+        sales_rep: "佐藤花子",
+        amount: 15_000_000,
+        start_date: "2025-01-15",
+        end_date: "2025-06-30",
+        staff_count: 3,
+        unit_price: 850_000,
+        months: 6,
+        probability: 95,
+        industry: "IT・通信",
+        last_updated: "2025-11-10",
+        tags: ["重要", "大型案件"],
+        description: "既存ECサイトの全面リニューアル。Rails + React構成で実装予定。",
+        contact_name: "山田太郎",
+        contact_email: "yamada@sample-tech.co.jp",
+        contact_phone: "03-1234-5678"
+      },
+      {
+        id: 2,
+        name: "社内業務システム開発",
+        client_name: "株式会社メガコーポレーション",
+        client_id: 2,
+        status: "見積中",
+        sales_rep: "田中次郎",
+        amount: 8_500_000,
+        start_date: "2025-02-01",
+        end_date: "2025-04-30",
+        staff_count: 2,
+        unit_price: 800_000,
+        months: 5,
+        probability: 70,
+        industry: "製造業",
+        last_updated: "2025-11-11",
+        tags: ["新規"],
+        description: "在庫管理・受発注システムの新規開発",
+        contact_name: "鈴木一郎",
+        contact_email: "suzuki@mega-corp.co.jp",
+        contact_phone: "03-2345-6789"
+      },
+      {
+        id: 3,
+        name: "モバイルアプリ開発（iOS/Android）",
+        client_name: "株式会社グローバルサービス",
+        client_id: 3,
+        status: "商談中",
+        sales_rep: "佐藤花子",
+        amount: 12_000_000,
+        start_date: "2025-03-01",
+        end_date: "2025-08-31",
+        staff_count: 4,
+        unit_price: 900_000,
+        months: 6,
+        probability: 50,
+        industry: "IT・通信",
+        last_updated: "2025-11-09",
+        tags: ["高単価"],
+        description: "顧客向けサービスアプリのネイティブ開発",
+        contact_name: "高橋花子",
+        contact_email: "takahashi@global-service.co.jp",
+        contact_phone: "03-3456-7890"
+      },
+      {
+        id: 4,
+        name: "データ分析基盤構築",
+        client_name: "株式会社ビッグデータソリューションズ",
+        client_id: 4,
+        status: "確定",
+        sales_rep: "伊藤健太",
+        amount: 20_000_000,
+        start_date: "2025-01-10",
+        end_date: "2025-12-31",
+        staff_count: 2,
+        unit_price: 1_000_000,
+        months: 12,
+        probability: 100,
+        industry: "IT・通信",
+        last_updated: "2025-11-12",
+        tags: ["長期", "大型案件"],
+        description: "AWS上でのデータレイク・データウェアハウス構築",
+        contact_name: "渡辺次郎",
+        contact_email: "watanabe@bigdata-sol.co.jp",
+        contact_phone: "03-4567-8901"
+      },
+      {
+        id: 5,
+        name: "セキュリティ診断・改善",
+        client_name: "株式会社セキュアシステムズ",
+        client_id: 5,
+        status: "完了",
+        sales_rep: "鈴木美咲",
+        amount: 3_500_000,
+        start_date: "2024-10-01",
+        end_date: "2024-12-31",
+        staff_count: 1,
+        unit_price: 750_000,
+        months: 3,
+        probability: 100,
+        industry: "IT・通信",
+        last_updated: "2025-01-05",
+        tags: ["セキュリティ"],
+        description: "Webアプリケーションのセキュリティ診断と脆弱性対策",
+        contact_name: "中村美咲",
+        contact_email: "nakamura@secure-sys.co.jp",
+        contact_phone: "03-5678-9012"
+      },
+      {
+        id: 6,
+        name: "基幹システム保守",
+        client_name: "株式会社エンタープライズ",
+        client_id: 6,
+        status: "確定",
+        sales_rep: "田中次郎",
+        amount: 6_000_000,
+        start_date: "2025-01-01",
+        end_date: "2025-12-31",
+        staff_count: 1,
+        unit_price: 500_000,
+        months: 12,
+        probability: 100,
+        industry: "金融",
+        last_updated: "2025-11-08",
+        tags: ["保守"],
+        description: "既存基幹システムの運用保守・機能追加",
+        contact_name: "小林太郎",
+        contact_email: "kobayashi@enterprise.co.jp",
+        contact_phone: "03-6789-0123"
+      },
+      {
+        id: 7,
+        name: "クラウド移行支援",
+        client_name: "株式会社レガシーシステムズ",
+        client_id: 2,
+        status: "商談中",
+        sales_rep: "佐藤花子",
+        amount: 18_000_000,
+        start_date: "2025-04-01",
+        end_date: "2025-09-30",
+        staff_count: 3,
+        unit_price: 950_000,
+        months: 6,
+        probability: 60,
+        industry: "製造業",
+        last_updated: "2025-11-11",
+        tags: ["クラウド", "大型案件"],
+        description: "オンプレミスシステムのAWS移行プロジェクト",
+        contact_name: "加藤一郎",
+        contact_email: "kato@legacy-sys.co.jp",
+        contact_phone: "03-7890-1234"
+      },
+      {
+        id: 8,
+        name: "AIチャットボット導入",
+        client_name: "株式会社カスタマーサポート",
+        client_id: 3,
+        status: "見積中",
+        sales_rep: "伊藤健太",
+        amount: 7_500_000,
+        start_date: "2025-02-15",
+        end_date: "2025-05-31",
+        staff_count: 2,
+        unit_price: 850_000,
+        months: 4,
+        probability: 65,
+        industry: "サービス",
+        last_updated: "2025-11-10",
+        tags: ["AI", "新技術"],
+        description: "OpenAI APIを活用したカスタマーサポート用チャットボット",
+        contact_name: "吉田花子",
+        contact_email: "yoshida@customer-support.co.jp",
+        contact_phone: "03-8901-2345"
+      },
+      {
+        id: 9,
+        name: "業務自動化RPA導入",
+        client_name: "株式会社オートメーション",
+        client_id: 1,
+        status: "失注",
+        sales_rep: "鈴木美咲",
+        amount: 5_000_000,
+        start_date: nil,
+        end_date: nil,
+        staff_count: 1,
+        unit_price: 700_000,
+        months: 6,
+        probability: 0,
+        industry: "IT・通信",
+        last_updated: "2025-10-20",
+        tags: ["失注理由: 予算"],
+        description: "経理・総務業務の自動化",
+        contact_name: "山本太郎",
+        contact_email: "yamamoto@automation.co.jp",
+        contact_phone: "03-9012-3456"
+      },
+      {
+        id: 10,
+        name: "Webサイト制作",
+        client_name: "株式会社スタートアップ",
+        client_id: 4,
+        status: "商談中",
+        sales_rep: "田中次郎",
+        amount: 2_800_000,
+        start_date: "2025-02-01",
+        end_date: "2025-03-31",
+        staff_count: 2,
+        unit_price: 700_000,
+        months: 2,
+        probability: 40,
+        industry: "IT・通信",
+        last_updated: "2025-11-07",
+        tags: ["小規模"],
+        description: "コーポレートサイトの新規制作",
+        contact_name: "佐々木次郎",
+        contact_email: "sasaki@startup.co.jp",
+        contact_phone: "03-0123-4567"
+      },
+      {
+        id: 11,
+        name: "SaaS開発プロジェクト",
+        client_name: "株式会社イノベーション",
+        client_id: 5,
+        status: "確定",
+        sales_rep: "佐藤花子",
+        amount: 25_000_000,
+        start_date: "2025-02-01",
+        end_date: "2025-12-31",
+        staff_count: 5,
+        unit_price: 950_000,
+        months: 10,
+        probability: 100,
+        industry: "IT・通信",
+        last_updated: "2025-11-12",
+        tags: ["重要", "大型案件", "新規"],
+        description: "BtoB向けSaaSプロダクトの新規開発",
+        contact_name: "林美咲",
+        contact_email: "hayashi@innovation.co.jp",
+        contact_phone: "03-1122-3344"
+      },
+      {
+        id: 12,
+        name: "インフラ構築・運用",
+        client_name: "株式会社クラウドインフラ",
+        client_id: 6,
+        status: "見積中",
+        sales_rep: "伊藤健太",
+        amount: 9_000_000,
+        start_date: "2025-03-01",
+        end_date: "2025-08-31",
+        staff_count: 2,
+        unit_price: 800_000,
+        months: 6,
+        probability: 55,
+        industry: "IT・通信",
+        last_updated: "2025-11-09",
+        tags: ["インフラ"],
+        description: "Kubernetes環境の構築と運用支援",
+        contact_name: "森田太郎",
+        contact_email: "morita@cloud-infra.co.jp",
+        contact_phone: "03-2233-4455"
+      }
+    ]
   end
 end
