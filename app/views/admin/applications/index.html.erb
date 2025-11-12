@@ -1,0 +1,128 @@
+<div class="space-y-6">
+  <!-- ページヘッダー -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">応募一覧</h1>
+      <p class="mt-1 text-sm text-gray-500"><%= @project[:name] %> への応募</p>
+    </div>
+    <%= link_to "案件一覧に戻る", admin_projects_path, class: "btn-secondary" %>
+  </div>
+
+  <!-- 案件情報カード -->
+  <div class="card p-6 bg-blue-50 border border-blue-200">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div>
+        <div class="text-xs text-gray-600 mb-1">クライアント</div>
+        <div class="font-semibold text-gray-900"><%= @project[:client_name] %></div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-600 mb-1">期間</div>
+        <div class="font-semibold text-gray-900"><%= @project[:start_date] %> 〜 <%= @project[:end_date] %></div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-600 mb-1">単価</div>
+        <div class="font-semibold text-gray-900">¥<%= number_with_delimiter(@project[:unit_price]) %>/月</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-600 mb-1">ステータス</div>
+        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+          <%= @project[:status] %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 応募リスト -->
+  <div class="card">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-900">
+          応募者: <%= @applications.length %>名
+        </h2>
+      </div>
+    </div>
+
+    <div class="divide-y divide-gray-200">
+      <% if @applications.any? %>
+        <% @applications.each do |application| %>
+          <div class="p-6 hover:bg-gray-50 transition-colors">
+            <div class="flex items-start justify-between">
+              <!-- 応募者情報 -->
+              <div class="flex items-start gap-4 flex-1">
+                <div class="flex-shrink-0">
+                  <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    <%= application[:staff_name][0] %>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h3 class="text-lg font-bold text-gray-900"><%= application[:staff_name] %></h3>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span class="ml-1 text-sm font-semibold text-gray-900"><%= application[:staff_rating] %></span>
+                    </div>
+                    <% if application[:status] == "pending" %>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        未対応
+                      </span>
+                    <% end %>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-4 mb-3 text-sm">
+                    <div>
+                      <div class="text-gray-500">経験年数</div>
+                      <div class="font-semibold text-gray-900"><%= application[:staff_experience_years] %>年</div>
+                    </div>
+                    <div>
+                      <div class="text-gray-500">過去案件</div>
+                      <div class="font-semibold text-gray-900"><%= application[:staff_past_projects] %>件</div>
+                    </div>
+                    <div>
+                      <div class="text-gray-500">応募日時</div>
+                      <div class="font-semibold text-gray-900"><%= application[:applied_at] %></div>
+                    </div>
+                  </div>
+
+                  <!-- スキル -->
+                  <div class="flex flex-wrap gap-2 mb-3">
+                    <% application[:staff_skills].each do |skill| %>
+                      <span class="inline-block px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                        <%= skill %>
+                      </span>
+                    <% end %>
+                  </div>
+
+                  <!-- メッセージプレビュー -->
+                  <div class="text-sm text-gray-600">
+                    <span class="font-medium">メッセージ:</span>
+                    <%= truncate(application[:message], length: 100) %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- アクションボタン -->
+              <div class="flex-shrink-0 ml-4">
+                <%= link_to admin_project_application_path(@project[:id], application[:id]), class: "btn-primary" do %>
+                  詳細を確認・配置
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">応募がありません</h3>
+          <p class="mt-1 text-sm text-gray-500">現在、この案件への応募はありません。</p>
+          <div class="mt-6">
+            <%= link_to "案件一覧に戻る", admin_projects_path, class: "btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

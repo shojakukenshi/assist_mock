@@ -1,0 +1,137 @@
+<!-- CSV/Excelインポートモーダル -->
+<div class="fixed inset-0 bg-gray-900/50 z-50 hidden"
+     data-import-modal-target="modal"
+     data-action="click->import-modal#closeOnBackdrop">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full"
+         onclick="event.stopPropagation()">
+      <!-- モーダルヘッダー -->
+      <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+        <div class="flex items-center">
+          <div class="p-2 bg-blue-100 rounded-lg mr-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">案件データのインポート</h3>
+            <p class="text-sm text-gray-500">CSV/Excelファイルから案件データを一括取り込み</p>
+          </div>
+        </div>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->import-modal#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- フォーム -->
+      <form data-import-modal-target="form" data-action="submit->import-modal#submit">
+        <div class="px-6 py-6 space-y-6">
+          <!-- ファイルアップロード領域 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              インポートファイル
+            </label>
+            <div class="mt-1">
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                   data-import-modal-target="dropzone"
+                   data-action="click->import-modal#selectFile
+                               drop->import-modal#handleDrop
+                               dragover->import-modal#handleDragOver
+                               dragleave->import-modal#handleDragLeave">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="mt-2 text-sm text-gray-600">
+                  <span class="font-medium text-blue-600">クリックしてファイルを選択</span> またはドラッグ＆ドロップ
+                </p>
+                <p class="mt-1 text-xs text-gray-500">
+                  CSV, Excel (.xlsx, .xls) ファイルに対応
+                </p>
+              </div>
+              <input type="file"
+                     class="hidden"
+                     accept=".csv,.xlsx,.xls"
+                     data-import-modal-target="fileInput"
+                     data-action="change->import-modal#handleFile">
+            </div>
+          </div>
+
+          <!-- プレビュー表示 -->
+          <div data-import-modal-target="preview"></div>
+
+          <!-- インポート設定 -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <svg class="h-5 w-5 text-blue-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-sm text-blue-800">
+                <p class="font-medium mb-1">インポート時の注意事項</p>
+                <ul class="list-disc list-inside space-y-1 text-blue-700">
+                  <li>1行目はヘッダー行として扱われます</li>
+                  <li>必須項目: 案件名、クライアント名、ステータス</li>
+                  <li>金額は数値のみで入力してください（¥記号不要）</li>
+                  <li>日付はYYYY-MM-DD形式で入力してください</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- オプション設定 -->
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input type="checkbox"
+                     id="skip_duplicates"
+                     name="skip_duplicates"
+                     checked
+                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="skip_duplicates" class="ml-2 block text-sm text-gray-900">
+                重複案件をスキップする
+              </label>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox"
+                     id="send_notification"
+                     name="send_notification"
+                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="send_notification" class="ml-2 block text-sm text-gray-900">
+                インポート完了後に通知を送信
+              </label>
+            </div>
+          </div>
+
+          <!-- サンプルファイルダウンロード -->
+          <div class="border-t border-gray-200 pt-4">
+            <p class="text-sm text-gray-700 mb-2">初めてインポートする場合は、サンプルファイルをご利用ください</p>
+            <button type="button"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              サンプルファイルをダウンロード
+            </button>
+          </div>
+        </div>
+
+        <!-- モーダルフッター -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-end space-x-3 rounded-b-xl">
+          <button type="button"
+                  class="btn-secondary"
+                  data-action="click->import-modal#close">
+            キャンセル
+          </button>
+          <button type="submit"
+                  class="btn-primary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            インポート実行
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

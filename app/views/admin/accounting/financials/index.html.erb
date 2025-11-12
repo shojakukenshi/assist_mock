@@ -1,0 +1,86 @@
+<div class="space-y-6" data-controller="closing">
+  <div class="flex justify-between items-center">
+    <div><h1 class="text-2xl font-bold">財務管理・決算処理</h1><p class="text-sm text-gray-500">月次締め・試算表・財務諸表</p></div>
+    <div class="flex gap-2">
+      <select class="px-3 py-2 border rounded-lg text-sm"><option><%= @period %></option></select>
+      <button class="btn-secondary text-sm" data-action="click->closing#exportCSV" data-report-type="試算表">CSV出力</button>
+      <button class="btn-primary text-sm" data-action="click->closing#open">月次締め</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-6">
+    <div class="card p-4"><p class="text-xs text-gray-500">損益率</p><p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:profit_margin] %>%</p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">粗利率</p><p class="mt-2 text-3xl font-bold text-blue-600"><%= @summary[:gross_margin] %>%</p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">経費率</p><p class="mt-2 text-3xl font-bold text-orange-600"><%= @summary[:expense_ratio] %>%</p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">進捗率</p><p class="mt-2 text-3xl font-bold text-purple-600"><%= @summary[:closing_progress] %>%</p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">純利益</p><p class="mt-2 text-xl font-bold"><%= number_to_currency(@summary[:net_profit], unit: "¥", precision: 0, delimiter: ",") %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">総売上</p><p class="mt-2 text-xl font-bold"><%= number_to_currency(@summary[:total_revenue], unit: "¥", precision: 0, delimiter: ",") %></p></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <h3 class="text-lg font-bold mb-4">損益計算書（当月）</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between font-bold"><span>売上高</span><span><%= number_to_currency(@profit_loss[:revenue][:total], unit: "¥", precision: 0) %></span></div>
+        <div class="flex justify-between pl-4"><span>売上原価</span><span class="text-red-600">(<%= number_to_currency(@profit_loss[:cost_of_sales][:total], unit: "¥", precision: 0) %>)</span></div>
+        <div class="flex justify-between font-bold border-t pt-2"><span>売上総利益</span><span class="text-green-600"><%= number_to_currency(@profit_loss[:gross_profit], unit: "¥", precision: 0) %></span></div>
+        <div class="flex justify-between pl-4"><span>販管費</span><span class="text-red-600">(<%= number_to_currency(@profit_loss[:expenses][:total], unit: "¥", precision: 0) %>)</span></div>
+        <div class="flex justify-between font-bold border-t pt-2"><span>営業利益</span><span class="text-green-600"><%= number_to_currency(@profit_loss[:operating_profit], unit: "¥", precision: 0) %></span></div>
+        <div class="flex justify-between font-bold border-t pt-2 text-lg"><span>当期純利益</span><span class="text-blue-600"><%= number_to_currency(@profit_loss[:net_profit], unit: "¥", precision: 0) %></span></div>
+      </div>
+    </div>
+    <div class="card p-6">
+      <h3 class="text-lg font-bold mb-4">月次締め処理履歴</h3>
+      <div class="space-y-3">
+        <% @closing_history.each do |history| %>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-bold"><%= history[:period] %></span>
+            <span class="px-2 py-1 text-xs font-semibold rounded-full <%= history[:status] == '締め済' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>"><%= history[:status] %></span>
+          </div>
+          <div class="text-sm text-gray-600 space-y-1">
+            <div class="flex justify-between"><span>売上</span><span><%= number_to_currency(history[:revenue], unit: "¥", precision: 0) %></span></div>
+            <div class="flex justify-between"><span>経費</span><span><%= number_to_currency(history[:expense], unit: "¥", precision: 0) %></span></div>
+            <div class="flex justify-between font-bold"><span>利益</span><span class="text-green-600"><%= number_to_currency(history[:profit], unit: "¥", precision: 0) %></span></div>
+            <% if history[:closed_date] %>
+            <div class="text-xs text-gray-500 mt-2">締め日: <%= history[:closed_date] %> (<%= history[:closed_by] %>)</div>
+            <% end %>
+          </div>
+        </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <!-- 月次締めモーダル -->
+  <div class="fixed inset-0 bg-gray-900/50 z-50 hidden" data-closing-target="modal" data-action="click->closing#closeOnBackdrop">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full" onclick="event.stopPropagation()">
+        <div class="px-6 py-4 border-b"><h3 class="text-xl font-bold">月次締め処理</h3></div>
+        <form data-closing-target="form" data-action="submit->closing#executeClosing">
+          <div class="px-6 py-6 space-y-4">
+            <div><label class="block text-sm font-medium mb-1">締め期間</label>
+            <input type="month" name="period" class="w-full px-3 py-2 border rounded-lg" value="<%= @period %>"></div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="text-sm text-blue-800">
+                <p class="font-medium mb-2">処理内容：</p>
+                <ul class="list-disc list-inside space-y-1 text-xs">
+                  <li>売上・経費データの集計</li>
+                  <li>試算表の自動生成</li>
+                  <li>仕訳データの確定</li>
+                  <li>月次レポート作成</li>
+                </ul>
+              </div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="mb-2 flex justify-between text-sm"><span>進捗状況</span><span data-closing-target="progressText">0%</span></div>
+              <div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-blue-600 h-3 rounded-full transition-all" style="width: 0%" data-closing-target="progressBar"></div></div>
+              <div class="mt-2 text-sm text-gray-600" data-closing-target="statusMessage">準備中...</div>
+            </div>
+          </div>
+          <div class="px-6 py-4 bg-gray-50 border-t flex justify-end space-x-3">
+            <button type="button" class="btn-secondary" data-action="click->closing#close">キャンセル</button>
+            <button type="submit" class="btn-primary">締め処理実行</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

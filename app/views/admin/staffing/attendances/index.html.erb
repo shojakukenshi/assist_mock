@@ -1,0 +1,309 @@
+<div class="space-y-6" data-controller="attendance-approval attendance-detail">
+  <!-- ページヘッダー -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">勤怠管理</h1>
+      <p class="mt-1 text-sm text-gray-500">カレンダー形式でスタッフの勤怠を管理します</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-secondary text-sm" data-action="click->attendance-approval#exportExcel">Excel取込</button>
+      <button class="btn-secondary text-sm" data-action="click->attendance-approval#exportCSV">CSV出力</button>
+      <button class="btn-primary text-sm">手動登録</button>
+    </div>
+  </div>
+
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-6">
+    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      <p class="text-xs font-medium text-blue-100">総件数</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:total_records] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+      <p class="text-xs font-medium text-yellow-100">未承認</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:pending_approval] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 text-white">
+      <p class="text-xs font-medium text-green-100">今月承認済</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:approved_this_month] %></p>
+    </div>
+    <div class="card p-4 bg-gradient-to-br from-red-500 to-red-600 text-white">
+      <p class="text-xs font-medium text-red-100">異常検知</p>
+      <p class="mt-2 text-3xl font-bold"><%= @summary[:anomaly_detected] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">総労働時間</p>
+      <p class="mt-2 text-xl font-bold text-gray-900"><%= number_with_delimiter(@summary[:total_hours]) %>h</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">平均労働時間</p>
+      <p class="mt-2 text-xl font-bold text-gray-900"><%= @summary[:avg_hours_per_staff] %>h</p>
+    </div>
+  </div>
+
+  <!-- 異常検知アラート -->
+  <% if @anomaly_alerts.any? %>
+    <div class="card p-4 bg-red-50 border border-red-200">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="text-sm font-bold text-red-900">異常検知アラート (<%= @anomaly_alerts.length %>件)</h3>
+      </div>
+      <div class="space-y-2">
+        <% @anomaly_alerts.each do |alert| %>
+          <div class="flex items-center justify-between text-sm bg-white rounded-lg p-3">
+            <div class="flex items-center gap-3">
+              <% case alert[:severity] %>
+              <% when "高" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">高</span>
+              <% when "中" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">中</span>
+              <% else %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">低</span>
+              <% end %>
+              <div>
+                <div class="font-medium text-gray-900"><%= alert[:staff_name] %></div>
+                <div class="text-gray-600"><%= alert[:alert_type] %>: <%= alert[:details] %></div>
+              </div>
+            </div>
+            <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">詳細</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- カレンダービュー -->
+  <div class="card">
+    <!-- カレンダーヘッダー（月ナビゲーション） -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <h2 class="text-lg font-bold text-gray-900">
+            <%= @current_year %>年 <%= @current_month %>月
+          </h2>
+          <div class="text-sm text-gray-500">
+            稼働予定 / 稼働数 / 欠勤数
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <%= link_to admin_staffing_attendances_path(year: @current_month == 1 ? @current_year - 1 : @current_year, month: @current_month == 1 ? 12 : @current_month - 1),
+              class: "p-2 hover:bg-gray-100 rounded-lg transition-colors" do %>
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          <% end %>
+          <%= link_to admin_staffing_attendances_path(year: Time.now.year, month: Time.now.month),
+              class: "px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" do %>
+            今月
+          <% end %>
+          <%= link_to admin_staffing_attendances_path(year: @current_month == 12 ? @current_year + 1 : @current_year, month: @current_month == 12 ? 1 : @current_month + 1),
+              class: "p-2 hover:bg-gray-100 rounded-lg transition-colors" do %>
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- カレンダーグリッド -->
+    <div class="p-6">
+      <div class="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+        <!-- 曜日ヘッダー -->
+        <% %w[日 月 火 水 木 金 土].each_with_index do |day, index| %>
+          <div class="bg-gray-100 p-3 text-center">
+            <div class="text-sm font-bold <%= index == 0 ? 'text-red-600' : index == 6 ? 'text-blue-600' : 'text-gray-700' %>">
+              <%= day %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- カレンダーの日付セル -->
+        <% @calendar_data.each do |week| %>
+          <% week.each do |day| %>
+            <%= link_to admin_staffing_attendances_path(year: @current_year, month: @current_month, date: day[:date_str]),
+                class: "bg-white p-3 min-h-[120px] hover:bg-gray-50 transition-colors #{day[:is_today] ? 'ring-2 ring-blue-500 ring-inset' : ''} #{!day[:in_current_month] ? 'opacity-40' : ''}",
+                data: { date: day[:date_str] } do %>
+              <div class="space-y-2">
+                <!-- 日付 -->
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-bold <%= day[:is_weekend] ? (day[:date].wday == 0 ? 'text-red-600' : 'text-blue-600') : 'text-gray-900' %> <%= day[:is_today] ? 'bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center' : '' %>">
+                    <%= day[:day] %>
+                  </span>
+                  <% if day[:anomaly_count] > 0 %>
+                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <% end %>
+                </div>
+
+                <!-- 稼働予定 -->
+                <div class="text-xs">
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-gray-500">予定:</span>
+                    <span class="font-semibold text-gray-700"><%= day[:scheduled_count] %>名</span>
+                  </div>
+                </div>
+
+                <!-- 稼働数 -->
+                <div class="text-xs">
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-gray-500">稼働:</span>
+                    <span class="font-semibold text-green-600"><%= day[:working_count] %>名</span>
+                  </div>
+                </div>
+
+                <!-- 欠勤数 -->
+                <% if day[:absence_count] > 0 %>
+                  <div class="text-xs">
+                    <div class="flex items-center justify-between py-1 bg-red-50 -mx-1 px-1 rounded">
+                      <span class="text-gray-500">欠勤:</span>
+                      <span class="font-semibold text-red-600"><%= day[:absence_count] %>名</span>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- 総労働時間 -->
+                <% if day[:total_hours] > 0 %>
+                  <div class="text-xs text-gray-400 pt-1 border-t border-gray-100">
+                    <%= day[:total_hours].round(1) %>h
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 選択日の詳細テーブル（日付が選択されている場合のみ表示） -->
+  <% if @selected_date.present? %>
+    <div class="card">
+      <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-gray-900">
+            <%= Date.parse(@selected_date).strftime("%Y年%-m月%-d日 (%a)") %> の勤怠詳細
+          </h2>
+          <%= link_to admin_staffing_attendances_path(year: @current_year, month: @current_month),
+              class: "text-sm text-gray-600 hover:text-gray-900" do %>
+            カレンダーに戻る
+          <% end %>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">スタッフ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">案件</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">勤務形態</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">勤務時間</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">労働時間</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">残業</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">備考</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% selected_attendances = @attendances.select { |a| a[:date] == @selected_date } %>
+            <% if selected_attendances.any? %>
+              <% selected_attendances.each do |attendance| %>
+                <tr class="hover:bg-gray-50 cursor-pointer"
+                    data-action="click->attendance-detail#show"
+                    data-attendance-json="<%= attendance.to_json %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div>
+                        <div class="text-sm font-medium text-gray-900"><%= attendance[:staff_name] %></div>
+                        <div class="text-sm text-gray-500"><%= attendance[:staff_code] %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= attendance[:project_name] || "-" %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <%= attendance[:work_type] == '待機' ? 'bg-gray-100 text-gray-800' : 'bg-blue-100 text-blue-800' %>">
+                      <%= attendance[:work_type] %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <% if attendance[:start_time] && attendance[:end_time] %>
+                      <%= attendance[:start_time] %> - <%= attendance[:end_time] %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= attendance[:work_hours] %>h
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= attendance[:overtime_hours] %>h
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% case attendance[:status] %>
+                    <% when "承認済" %>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">承認済</span>
+                    <% when "未承認" %>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">未承認</span>
+                    <% when "差戻し" %>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">差戻し</span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-500">
+                    <% if attendance[:anomaly] %>
+                      <span class="flex items-center gap-1 text-red-600 font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <%= attendance[:anomaly] %>
+                      </span>
+                    <% elsif attendance[:remarks] %>
+                      <%= truncate(attendance[:remarks], length: 30) %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                  <div class="text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="mt-2">この日の勤怠データはありません</p>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- スライドインパネル（勤怠詳細表示用） -->
+  <div class="hidden" data-attendance-detail-target="overlay">
+    <!-- オーバーレイ -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40" data-action="click->attendance-detail#close"></div>
+
+    <!-- スライドインパネル -->
+    <div class="fixed right-0 top-0 h-full w-full md:w-2/3 lg:w-1/2 bg-white shadow-xl z-50 overflow-y-auto" data-attendance-detail-target="panel">
+      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+        <h2 class="text-xl font-bold text-gray-900">勤怠詳細</h2>
+        <button type="button" class="text-gray-400 hover:text-gray-600" data-action="click->attendance-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6" data-attendance-detail-target="content">
+        <!-- 動的コンテンツがここに挿入されます -->
+      </div>
+    </div>
+  </div>
+</div>

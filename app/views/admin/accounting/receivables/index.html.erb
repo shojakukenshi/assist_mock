@@ -1,0 +1,194 @@
+<div class="space-y-6" data-controller="receivable-detail">
+  <div class="flex justify-between items-center">
+    <div><h1 class="text-2xl font-bold">売上・債権管理</h1><p class="text-sm text-gray-500">請求・入金照合・滞留債権管理</p></div>
+    <div class="flex gap-2">
+      <button class="btn-secondary text-sm">入金照合</button>
+      <button class="btn-secondary text-sm">督促メール</button>
+      <button class="btn-primary text-sm">CSV出力</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white"><p class="text-xs text-blue-100">総売上</p><p class="mt-2 text-xl font-bold"><%= number_to_currency(@summary[:total_sales], unit: "¥", precision: 0, delimiter: ",") %></p></div>
+    <div class="card p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white"><p class="text-xs text-orange-100">未入金額</p><p class="mt-2 text-xl font-bold"><%= number_to_currency(@summary[:outstanding_amount], unit: "¥", precision: 0, delimiter: ",") %></p></div>
+    <div class="card p-4 bg-gradient-to-br from-red-500 to-red-600 text-white"><p class="text-xs text-red-100">滞留額</p><p class="mt-2 text-xl font-bold"><%= number_to_currency(@summary[:overdue_amount], unit: "¥", precision: 0, delimiter: ",") %></p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">平均回収日数</p><p class="mt-2 text-3xl font-bold text-blue-600"><%= @summary[:average_collection_days] %>日</p></div>
+    <div class="card p-4"><p class="text-xs text-gray-500">回収率</p><p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:collection_rate] %>%</p></div>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50"><tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">請求番号</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">クライアント</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">案件</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">請求額</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">請求日</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">期限</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">入金日</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">経過日数</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-200">
+        <% @receivables.each do |rec| %>
+        <tr class="cursor-pointer hover:bg-gray-50 <%= 'bg-red-50' if rec[:alert] %>"
+            data-action="click->receivable-detail#open"
+            data-receivable='<%= rec.to_json %>'>
+          <td class="px-6 py-4 text-sm font-medium"><%= rec[:invoice_number] %></td>
+          <td class="px-6 py-4 text-sm"><%= rec[:client] %></td>
+          <td class="px-6 py-4 text-sm"><%= rec[:project] %></td>
+          <td class="px-6 py-4 text-sm text-right font-bold"><%= number_to_currency(rec[:total], unit: "¥", precision: 0, delimiter: ",") %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= rec[:invoice_date] %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= rec[:due_date] %></td>
+          <td class="px-6 py-4 text-sm text-center"><%= rec[:payment_date] || '-' %></td>
+          <td class="px-6 py-4 text-sm text-center <%= rec[:alert] ? 'text-red-600 font-bold' : '' %>"><%= rec[:days_outstanding] > 0 ? "#{rec[:days_outstanding]}日" : '-' %></td>
+          <td class="px-6 py-4 text-center">
+            <% case rec[:status] %>
+            <% when "未入金" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">未入金</span>
+            <% when "入金済" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">入金済</span>
+            <% when "滞留" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">滞留</span>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 詳細パネル -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-receivable-detail-target="panel">
+    <!-- ヘッダー -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">売掛金詳細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->receivable-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- コンテンツ -->
+    <div class="p-6 space-y-6">
+      <!-- 基本情報 -->
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2" data-receivable-detail-target="client">-</h3>
+          <p class="text-sm text-gray-500">
+            請求番号: <span data-receivable-detail-target="invoiceNumber">-</span>
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            案件: <span data-receivable-detail-target="project">-</span>
+          </p>
+        </div>
+        <span data-receivable-detail-target="statusBadge" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full">-</span>
+      </div>
+
+      <!-- クイックアクション -->
+      <div class="flex space-x-2">
+        <button class="flex-1 btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          入金確認
+        </button>
+        <button class="flex-1 btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          督促メール
+        </button>
+      </div>
+
+      <!-- 金額サマリー -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-blue-50 rounded-lg p-4">
+          <div class="text-sm text-gray-600 mb-1">請求額</div>
+          <div class="text-2xl font-bold text-blue-600" data-receivable-detail-target="amount">¥0</div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4">
+          <div class="text-sm text-gray-600 mb-1">入金額</div>
+          <div class="text-2xl font-bold text-green-600" data-receivable-detail-target="paidAmount">¥0</div>
+        </div>
+        <div class="bg-orange-50 rounded-lg p-4">
+          <div class="text-sm text-gray-600 mb-1">残高</div>
+          <div class="text-2xl font-bold text-orange-600" data-receivable-detail-target="balance">¥0</div>
+        </div>
+      </div>
+
+      <!-- 請求日程 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          日程情報
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">請求日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="invoiceDate">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">支払期限</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="dueDate">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">入金日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="paymentDate">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">経過日数</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="daysOutstanding">-</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- 詳細情報 -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          請求明細
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">クライアント</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="clientName">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">案件名</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="projectName">-</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">ステータス</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-receivable-detail-target="statusText">-</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="pt-6 border-t border-gray-200 space-y-2">
+        <button class="w-full btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          入金登録
+        </button>
+        <button class="w-full btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          編集
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
