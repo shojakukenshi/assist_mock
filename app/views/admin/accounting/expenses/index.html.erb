@@ -40,9 +40,12 @@
           <td class="px-6 py-4 text-center"><%= exp[:receipt] ? '✓' : '-' %></td>
           <td class="px-6 py-4 text-center">
             <% case exp[:status] %>
-            <% when "承認待ち" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">承認待ち</span>
-            <% when "承認済" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">承認済</span>
-            <% when "差戻し" %><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">差戻し</span>
+            <% when "承認待ち" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">承認待ち</span>
+            <% when "承認済" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">承認済</span>
+            <% when "差戻し" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">差戻し</span>
             <% end %>
           </td>
           <td class="px-6 py-4 text-right text-sm">
