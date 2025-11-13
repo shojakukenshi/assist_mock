@@ -1,0 +1,254 @@
+<!-- 稼働状況サマリー -->
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+  <div class="card p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-blue-100">総スタッフ数</p>
+      <p class="mt-2 text-3xl font-bold"><%= @staffing_summary[:total_staff] %></p>
+      <p class="mt-1 text-xs text-blue-100">登録スタッフ</p>
+    </div>
+  </div>
+
+  <div class="card p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-green-100">稼働中</p>
+      <p class="mt-2 text-3xl font-bold"><%= @staffing_summary[:active_staff] %></p>
+      <p class="mt-1 text-xs text-green-100">現在稼働</p>
+    </div>
+  </div>
+
+  <div class="card p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-yellow-100">待機中</p>
+      <p class="mt-2 text-3xl font-bold"><%= @staffing_summary[:available_staff] %></p>
+      <p class="mt-1 text-xs text-yellow-100">アサイン可能</p>
+    </div>
+  </div>
+
+  <div class="card p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-purple-100">稼働率</p>
+      <p class="mt-2 text-3xl font-bold"><%= @staffing_summary[:utilization_rate] %>%</p>
+      <p class="mt-1 text-xs text-purple-100">今月の稼働率</p>
+    </div>
+  </div>
+
+  <div class="card p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-red-100">要手配案件</p>
+      <p class="mt-2 text-3xl font-bold"><%= @assignment_required_alerts.length %></p>
+      <p class="mt-1 text-xs text-red-100">スタッフ不足</p>
+    </div>
+  </div>
+
+  <div class="card p-4 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl shadow-sm">
+    <div class="text-white">
+      <p class="text-xs font-medium text-cyan-100">新規応募</p>
+      <p class="mt-2 text-3xl font-bold"><%= @staffing_summary[:new_applications] %></p>
+      <p class="mt-1 text-xs text-cyan-100">対応待ち</p>
+    </div>
+  </div>
+</div>
+
+<!-- 月次稼働状況グラフ（最上部に配置） -->
+<div class="bg-white shadow-sm rounded-xl overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">月次稼働状況の推移</h2>
+  </div>
+  <div class="px-6 py-4">
+    <div style="height: 320px;">
+      <canvas
+        data-controller="utilization-chart"
+        data-utilization-chart-data-value="<%= {
+          labels: @monthly_utilization.map { |m| m[:month] },
+          total: @monthly_utilization.map { |m| m[:total] },
+          active: @monthly_utilization.map { |m| m[:active] },
+          rate: @monthly_utilization.map { |m| m[:rate] }
+        }.to_json %>"
+      ></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- アラート・通知タブ -->
+<div class="bg-white shadow-sm rounded-xl overflow-hidden" data-controller="tab">
+  <!-- タブヘッダー -->
+  <div class="border-b border-gray-200">
+    <nav class="flex -mb-px" aria-label="Tabs">
+      <button data-action="click->tab#switch" data-tab-index="0" class="tab-button active border-b-2 border-blue-500 text-blue-600 py-4 px-6 text-sm font-medium whitespace-nowrap">
+        <span class="flex items-center gap-2">
+          要手配案件
+          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+            <%= @assignment_required_alerts.length %>
+          </span>
+        </span>
+      </button>
+      <button data-action="click->tab#switch" data-tab-index="1" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 text-sm font-medium whitespace-nowrap">
+        <span class="flex items-center gap-2">
+          勤怠異常
+          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
+            <%= @attendance_alerts.length %>
+          </span>
+        </span>
+      </button>
+      <button data-action="click->tab#switch" data-tab-index="2" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 text-sm font-medium whitespace-nowrap">
+        <span class="flex items-center gap-2">
+          資格期限
+          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
+            <%= @qualification_alerts.length %>
+          </span>
+        </span>
+      </button>
+      <button data-action="click->tab#switch" data-tab-index="3" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 text-sm font-medium whitespace-nowrap">
+        <span class="flex items-center gap-2">
+          スタッフ応募
+          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800">
+            <%= @staffing_summary[:new_applications] %>
+          </span>
+        </span>
+      </button>
+      <button data-action="click->tab#switch" data-tab-index="4" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 text-sm font-medium whitespace-nowrap">
+        サポート通知
+      </button>
+    </nav>
+  </div>
+
+  <!-- タブコンテンツ -->
+  <div class="p-6">
+    <!-- 要手配案件タブ -->
+    <div data-tab-target="panel" class="tab-panel">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @assignment_required_alerts.each do |alert| %>
+          <div class="border-l-4 <%= alert[:urgency] == 'high' ? 'border-red-500 bg-red-50' : 'border-yellow-500 bg-yellow-50' %> pl-4 py-3 rounded-r-lg">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium text-gray-900"><%= alert[:project_name] %></div>
+              <% if alert[:urgency] == "high" %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 whitespace-nowrap ml-2">緊急</span>
+              <% else %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800 whitespace-nowrap ml-2">注意</span>
+              <% end %>
+            </div>
+            <div class="text-sm text-gray-600"><%= alert[:client] %></div>
+            <div class="text-sm text-gray-700 mt-2">
+              必要: <%= alert[:required_staff] %>名 / 配置済: <%= alert[:assigned_staff] %>名 /
+              <span class="font-semibold text-red-600">不足: <%= alert[:shortage] %>名</span>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">
+              開始日: <%= alert[:event_date] %>（あと<%= alert[:days_until_event] %>日）
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 勤怠異常タブ -->
+    <div data-tab-target="panel" class="tab-panel hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <% @attendance_alerts.each do |alert| %>
+          <div class="border-l-4
+            <%= alert[:severity] == 'critical' ? 'border-red-500 bg-red-50' : alert[:severity] == 'warning' ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50' %>
+            pl-4 py-3 rounded-r-lg">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium text-gray-900"><%= alert[:staff_name] %></div>
+              <% if alert[:severity] == "critical" %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 whitespace-nowrap ml-2">重大</span>
+              <% elsif alert[:severity] == "warning" %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-orange-100 text-orange-800 whitespace-nowrap ml-2">警告</span>
+              <% else %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap ml-2">情報</span>
+              <% end %>
+            </div>
+            <div class="text-sm text-gray-600"><%= alert[:staff_code] %></div>
+            <div class="text-sm text-gray-700 mt-1"><%= alert[:issue] %></div>
+            <div class="text-xs text-gray-500 mt-1"><%= alert[:date] %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 資格期限タブ -->
+    <div data-tab-target="panel" class="tab-panel hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @qualification_alerts.each do |alert| %>
+          <div class="border-l-4 <%= alert[:days_remaining] <= 7 ? 'border-red-500 bg-red-50' : 'border-yellow-500 bg-yellow-50' %> pl-4 py-3 rounded-r-lg">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium text-gray-900"><%= alert[:staff_name] %></div>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <%= alert[:days_remaining] <= 7 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %> whitespace-nowrap ml-2">
+                残り<%= alert[:days_remaining] %>日
+              </span>
+            </div>
+            <div class="text-sm text-gray-600"><%= alert[:staff_code] %></div>
+            <div class="text-sm text-gray-700 mt-1"><%= alert[:qualification] %></div>
+            <div class="text-xs text-gray-500 mt-1">期限: <%= alert[:expiry_date] %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- スタッフ応募タブ -->
+    <div data-tab-target="panel" class="tab-panel hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @staff_application_notifications.each do |app| %>
+          <div class="border-l-4 border-cyan-500 bg-cyan-50 pl-4 py-3 rounded-r-lg">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium text-gray-900"><%= app[:staff_name] %></div>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-800 whitespace-nowrap ml-2">
+                <%= app[:status] %>
+              </span>
+            </div>
+            <div class="text-sm text-gray-700 mt-1">
+              <%= app[:desired_positions].join(", ") %>
+            </div>
+            <div class="text-sm text-gray-600 mt-1">経験: <%= app[:experience_years] %>年</div>
+            <div class="text-xs text-gray-500 mt-1"><%= app[:application_date] %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- サポート通知タブ -->
+    <div data-tab-target="panel" class="tab-panel hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日時</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">種別</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">内容</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @support_notifications.each do |notification| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= notification[:date] %></td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900"><%= notification[:staff] %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case notification[:type] %>
+                  <% when "問い合わせ" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">問い合わせ</span>
+                  <% when "トラブル報告" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">トラブル報告</span>
+                  <% when "シフト変更依頼" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">シフト変更</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900"><%= notification[:content] %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case notification[:status] %>
+                  <% when "対応中" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">対応中</span>
+                  <% when "解決済" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">解決済</span>
+                  <% when "承認待ち" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">承認待ち</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
