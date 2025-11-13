@@ -6,39 +6,115 @@ class Admin::Accounting::InsuranceControllerTest < ActionDispatch::IntegrationTe
     assert_response :success
   end
 
-  test "index page should have detail panel for slide-in" do
-    get admin_accounting_insurance_index_path
+  # 社会保険料計算フローのテスト
+  test "should get social_insurance_step1" do
+    get social_insurance_step1_admin_accounting_insurance_path(id: 1)
     assert_response :success
-    assert_select '[data-insurance-detail-target="panel"]', 1, "Detail panel should exist for insurance details"
   end
 
-  test "detail panel should have proper structure" do
-    get admin_accounting_insurance_index_path
-    assert_response :success
-
-    # Stimulus controller should be connected
-    assert_select '[data-controller~="insurance-detail"]', 1, "Stimulus controller should be connected"
-
-    # Panel should have data targets for content
-    assert_select '[data-insurance-detail-target="panel"]', 1
-    assert_select '[data-insurance-detail-target="employeeName"]', 1
-    assert_select '[data-insurance-detail-target="healthInsurance"]', 1
-    assert_select '[data-insurance-detail-target="pension"]', 1
-    assert_select '[data-insurance-detail-target="totalAmount"]', 1
+  test "should execute social_insurance_step1" do
+    post execute_social_insurance_step1_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to social_insurance_step2_admin_accounting_insurance_path(1)
   end
 
-  test "table rows should be clickable with data attributes" do
-    get admin_accounting_insurance_index_path
+  test "should get social_insurance_step2" do
+    get social_insurance_step2_admin_accounting_insurance_path(id: 1)
     assert_response :success
+  end
 
-    # Rows should have click action
-    assert_select 'tbody tr[data-action*="insurance-detail#open"]',
-                  minimum: 1,
-                  message: "Table rows should have click action for opening detail"
+  test "should execute social_insurance_step2" do
+    post execute_social_insurance_step2_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to social_insurance_step3_admin_accounting_insurance_path(1)
+  end
 
-    # Rows should have data attribute for insurance data
-    assert_select 'tbody tr[data-insurance]',
-                  minimum: 1,
-                  message: "Table rows should have insurance data attribute"
+  test "should get social_insurance_step3" do
+    get social_insurance_step3_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute social_insurance_step3" do
+    post execute_social_insurance_step3_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to social_insurance_step4_admin_accounting_insurance_path(1)
+  end
+
+  test "should get social_insurance_step4" do
+    get social_insurance_step4_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute social_insurance_step4" do
+    post execute_social_insurance_step4_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to social_insurance_step5_admin_accounting_insurance_path(1)
+  end
+
+  test "should get social_insurance_step5" do
+    get social_insurance_step5_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute social_insurance_step5" do
+    post execute_social_insurance_step5_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to social_insurance_step6_admin_accounting_insurance_path(1)
+  end
+
+  test "should get social_insurance_step6" do
+    get social_insurance_step6_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  # 源泉徴収処理フローのテスト
+  test "should get withholding_tax_step1" do
+    get withholding_tax_step1_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute withholding_tax_step1" do
+    post execute_withholding_tax_step1_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to withholding_tax_step2_admin_accounting_insurance_path(1)
+  end
+
+  test "should get withholding_tax_step2" do
+    get withholding_tax_step2_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute withholding_tax_step2" do
+    post execute_withholding_tax_step2_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to withholding_tax_step3_admin_accounting_insurance_path(1)
+  end
+
+  test "should get withholding_tax_step3" do
+    get withholding_tax_step3_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute withholding_tax_step3" do
+    post execute_withholding_tax_step3_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to withholding_tax_step4_admin_accounting_insurance_path(1)
+  end
+
+  test "should get withholding_tax_step4" do
+    get withholding_tax_step4_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute withholding_tax_step4" do
+    post execute_withholding_tax_step4_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to withholding_tax_step5_admin_accounting_insurance_path(1)
+  end
+
+  test "should get withholding_tax_step5" do
+    get withholding_tax_step5_admin_accounting_insurance_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute withholding_tax_step5" do
+    post execute_withholding_tax_step5_admin_accounting_insurance_path(id: 1)
+    assert_redirected_to withholding_tax_step6_admin_accounting_insurance_path(1)
+  end
+
+  test "should get withholding_tax_step6" do
+    get withholding_tax_step6_admin_accounting_insurance_path(id: 1)
+    assert_response :success
   end
 end

@@ -1,0 +1,201 @@
+<div class="p-6">
+  <!-- パンくずナビゲーション -->
+  <div class="mb-6">
+    <%= link_to "社会保険・税務管理", admin_accounting_insurance_and_tax_index_path, class: "text-blue-600 hover:text-blue-800" %>
+    <span class="text-gray-400 mx-2">/</span>
+    <span class="text-gray-600">源泉徴収処理</span>
+    <span class="text-gray-400 mx-2">/</span>
+    <span class="text-gray-900 font-semibold">ステップ3: 源泉徴収税額表を適用</span>
+  </div>
+
+  <!-- ページヘッダー -->
+  <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8 text-white">
+    <h1 class="text-3xl font-bold mb-2">源泉徴収処理</h1>
+    <p class="text-green-100">給与計算期間: <%= @period %></p>
+  </div>
+
+  <!-- ステップインジケーター -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white font-bold">✓</div>
+        <div class="flex-1 h-1 bg-green-600 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white font-bold">✓</div>
+        <div class="flex-1 h-1 bg-green-600 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white font-bold">3</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">4</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">5</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">6</div>
+      </div>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-600">
+      <span class="flex-1 text-center text-gray-400">課税対象額算出</span>
+      <span class="flex-1 text-center text-gray-400">扶養控除反映</span>
+      <span class="flex-1 text-center font-semibold text-green-600">税額表適用</span>
+      <span class="flex-1 text-center">所得税計算</span>
+      <span class="flex-1 text-center">納付書作成</span>
+      <span class="flex-1 text-center">年末調整精算</span>
+    </div>
+  </div>
+
+  <!-- 税額表情報 -->
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+    <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-200">
+      <h2 class="text-2xl font-bold text-gray-900">適用する源泉徴収税額表</h2>
+      <p class="text-sm text-gray-600 mt-1">国税庁が定める源泉徴収税額の計算基準</p>
+    </div>
+
+    <div class="p-8">
+      <div class="grid grid-cols-2 gap-6">
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div class="flex items-center mb-4">
+            <svg class="w-8 h-8 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <div>
+              <div class="text-sm text-gray-600">税額表名称</div>
+              <div class="text-lg font-bold text-gray-900"><%= @tax_table_info[:applicable_table] %></div>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">適用開始日:</span>
+              <span class="text-sm font-semibold text-gray-900"><%= @tax_table_info[:effective_date] %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">表の種類:</span>
+              <span class="text-sm font-semibold text-gray-900"><%= @tax_table_info[:table_type] %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">税率構造:</span>
+              <span class="text-sm font-semibold text-gray-900"><%= @tax_table_info[:tax_rate_structure] %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">税額表の特徴</h3>
+          <ul class="space-y-2 text-sm text-gray-800">
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">•</span>
+              <span>月額表は毎月の給与に適用</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">•</span>
+              <span>課税対象額と扶養親族数で税額が決定</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">•</span>
+              <span>甲欄・乙欄で税額が異なる</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">•</span>
+              <span>復興特別所得税（2.1%）を含む</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スタッフ別適用税額表 -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900">スタッフ別適用税額表（サンプル）</h2>
+      <p class="text-sm text-gray-600 mt-1">各スタッフに適用される税額区分</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">スタッフ</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">課税対象額</th>
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">税区分</th>
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">扶養親族数</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-50">適用税額区分</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50">税額（調整前）</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @staff_sample.each do |staff| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
+                <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
+                ¥<%= number_with_delimiter(staff[:taxable_amount]) %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold <%= staff[:tax_category] == '甲欄' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800' %>">
+                  <%= staff[:tax_category] %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold text-gray-900">
+                <%= staff[:dependent_count] %>人
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 bg-yellow-50">
+                <%= staff[:applicable_tax_bracket] %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-green-600 bg-green-50">
+                ¥<%= number_with_delimiter(staff[:tax_amount_before_adjustment]) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 税額表の見方 -->
+  <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-8">
+    <h3 class="text-lg font-bold text-indigo-900 mb-3 flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      源泉徴収税額表の見方
+    </h3>
+    <div class="grid grid-cols-2 gap-4 text-sm text-indigo-900">
+      <div class="bg-white rounded-lg p-4">
+        <h4 class="font-bold mb-2">1. 課税対象額の確認</h4>
+        <p>その月の社会保険料控除後の給与額を確認します</p>
+      </div>
+      <div class="bg-white rounded-lg p-4">
+        <h4 class="font-bold mb-2">2. 扶養親族数の確認</h4>
+        <p>扶養控除等申告書に記載された扶養親族の数を確認します</p>
+      </div>
+      <div class="bg-white rounded-lg p-4">
+        <h4 class="font-bold mb-2">3. 該当する金額区分を特定</h4>
+        <p>税額表から課税対象額が該当する金額区分を見つけます</p>
+      </div>
+      <div class="bg-white rounded-lg p-4">
+        <h4 class="font-bold mb-2">4. 源泉徴収税額を読み取る</h4>
+        <p>扶養親族数の列と金額区分の交差点が源泉徴収税額です</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- アクションボタン -->
+  <div class="flex justify-between items-center">
+    <%= link_to withholding_tax_step2_admin_accounting_insurance_path(@period), class: "px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+      ← 前へ
+    <% end %>
+    <%= button_to execute_withholding_tax_step3_admin_accounting_insurance_path(@period), method: :post, class: "px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md" do %>
+      次へ: 所得税を計算 →
+    <% end %>
+  </div>
+</div>
