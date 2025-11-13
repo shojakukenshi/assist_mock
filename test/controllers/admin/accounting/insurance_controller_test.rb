@@ -6,35 +6,39 @@ class Admin::Accounting::InsuranceControllerTest < ActionDispatch::IntegrationTe
     assert_response :success
   end
 
-  test "index page should display summary cards" do
+  test "index page should have detail panel for slide-in" do
     get admin_accounting_insurance_index_path
     assert_response :success
-
-    # サマリーカードが表示されていること
-    assert_select '.text-3xl.font-bold', minimum: 5
+    assert_select '[data-insurance-detail-target="panel"]', 1, "Detail panel should exist for insurance details"
   end
 
-  test "index page should display staff insurance list" do
+  test "detail panel should have proper structure" do
     get admin_accounting_insurance_index_path
     assert_response :success
 
-    # スタッフリストのテーブルが表示されていること
-    assert_select 'table tbody tr', minimum: 1
+    # Stimulus controller should be connected
+    assert_select '[data-controller~="insurance-detail"]', 1, "Stimulus controller should be connected"
+
+    # Panel should have data targets for content
+    assert_select '[data-insurance-detail-target="panel"]', 1
+    assert_select '[data-insurance-detail-target="employeeName"]', 1
+    assert_select '[data-insurance-detail-target="healthInsurance"]', 1
+    assert_select '[data-insurance-detail-target="pension"]', 1
+    assert_select '[data-insurance-detail-target="totalAmount"]', 1
   end
 
-  test "index page should display premium trends" do
+  test "table rows should be clickable with data attributes" do
     get admin_accounting_insurance_index_path
     assert_response :success
 
-    # 保険料推移セクションが表示されていること
-    assert_select 'h2', text: '月次保険料推移'
-  end
+    # Rows should have click action
+    assert_select 'tbody tr[data-action*="insurance-detail#open"]',
+                  minimum: 1,
+                  message: "Table rows should have click action for opening detail"
 
-  test "index page should display health checkup status" do
-    get admin_accounting_insurance_index_path
-    assert_response :success
-
-    # 健康診断実施状況が表示されていること
-    assert_select 'h2', text: '健康診断実施状況'
+    # Rows should have data attribute for insurance data
+    assert_select 'tbody tr[data-insurance]',
+                  minimum: 1,
+                  message: "Table rows should have insurance data attribute"
   end
 end

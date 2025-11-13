@@ -1,243 +1,87 @@
-<div class="p-6">
+<div class="space-y-6" data-controller="tab insurance-detail">
   <!-- ページヘッダー -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">社会保険加入管理</h1>
-    <p class="text-gray-600">スタッフごとの社会保険加入状況と保険料管理</p>
-  </div>
-
-  <!-- サマリーカード -->
-  <div class="grid grid-cols-2 md:grid-cols-6 gap-6 mb-8">
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-      <div class="text-sm text-gray-600 mb-1">総スタッフ数</div>
-      <div class="text-3xl font-bold text-gray-900"><%= number_with_delimiter(@summary[:total_staff]) %>名</div>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">社会保険・税務管理</h1>
+      <p class="mt-1 text-sm text-gray-500">保険料・源泉徴収・年末調整の一元管理</p>
     </div>
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-      <div class="text-sm text-gray-600 mb-1">加入済</div>
-      <div class="text-3xl font-bold text-green-600"><%= number_with_delimiter(@summary[:insured_staff]) %>名</div>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
-      <div class="text-sm text-gray-600 mb-1">未加入</div>
-      <div class="text-3xl font-bold text-red-600"><%= number_with_delimiter(@summary[:uninsured_staff]) %>名</div>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-      <div class="text-sm text-gray-600 mb-1">月次保険料総額</div>
-      <div class="text-2xl font-bold text-purple-600">¥<%= number_with_delimiter(@summary[:total_monthly_premium]) %></div>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-teal-500">
-      <div class="text-sm text-gray-600 mb-1">健康診断完了</div>
-      <div class="text-3xl font-bold text-teal-600"><%= number_with_delimiter(@summary[:health_checkup_completed]) %>名</div>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
-      <div class="text-sm text-gray-600 mb-1">健康診断未実施</div>
-      <div class="text-3xl font-bold text-orange-600"><%= number_with_delimiter(@summary[:health_checkup_pending]) %>名</div>
+    <div class="flex gap-2">
+      <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <option>2025年度</option>
+        <option>2024年度</option>
+      </select>
+      <button class="btn-secondary text-sm">CSV出力</button>
+      <button class="btn-primary text-sm">一括納付処理</button>
     </div>
   </div>
 
-  <!-- アクションボタン -->
-  <div class="flex gap-4 mb-8">
-    <%= link_to admin_accounting_insurance_and_tax_index_path, class: "px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-md flex items-center" do %>
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      社会保険・税務管理（期間別処理）
-    <% end %>
-    <button class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md flex items-center">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      新規スタッフ保険加入
-    </button>
-    <button class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium shadow-md flex items-center">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-      </svg>
-      CSV出力
-    </button>
-  </div>
-
-  <!-- スタッフ別社会保険加入状況 -->
-  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">スタッフ別社会保険加入状況</h2>
-      <p class="text-sm text-gray-600 mt-1">各スタッフの保険加入情報と保険料</p>
+  <!-- KPIカード -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">対象者数</p>
+      <p class="mt-2 text-3xl font-bold text-gray-900"><%= @summary[:total_employees] %></p>
     </div>
-
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">スタッフ</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">年齢</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">雇用形態</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">加入状況</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">保険証番号</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年金番号</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">扶養人数</th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">月次保険料<br><span class="text-xs font-normal">(従業員負担)</span></th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">健康診断</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @staff_insurance_list.each do |staff| %>
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
-                <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-center">
-                <span class="text-sm text-gray-900"><%= staff[:age] %>歳</span>
-                <% if staff[:age] >= 40 %>
-                  <span class="block text-xs text-purple-600 mt-1">介護保険対象</span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium <%= case staff[:employment_type]
-                  when '正社員' then 'bg-blue-100 text-blue-800'
-                  when '契約社員' then 'bg-green-100 text-green-800'
-                  when 'アルバイト' then 'bg-gray-100 text-gray-800'
-                  else 'bg-gray-100 text-gray-800'
-                end %>">
-                  <%= staff[:employment_type] %>
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-center">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium <%= staff[:insurance_status] == '加入済' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
-                  <%= staff[:insurance_status] %>
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= staff[:health_insurance_number] || '-' %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= staff[:pension_number] || '-' %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                <%= staff[:dependent_count] %>人
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
-                <% if staff[:monthly_premium_employee] > 0 %>
-                  ¥<%= number_with_delimiter(staff[:monthly_premium_employee]) %>
-                <% else %>
-                  <span class="text-gray-400">-</span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-center">
-                <% if staff[:health_checkup_status] == '実施済' %>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <%= staff[:health_checkup_status] %>
-                  </span>
-                  <div class="text-xs text-gray-500 mt-1"><%= staff[:health_checkup_date] %></div>
-                <% elsif staff[:health_checkup_status] == '未実施' %>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    <%= staff[:health_checkup_status] %>
-                  </span>
-                <% else %>
-                  <span class="text-xs text-gray-400"><%= staff[:health_checkup_status] %></span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">未申告件数</p>
+      <p class="mt-2 text-3xl font-bold text-orange-600"><%= @summary[:pending_filings] %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">保険料納付額</p>
+      <p class="mt-2 text-xl font-bold text-green-600"><%= number_to_currency(@summary[:total_insurance_payment], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">税金納付額</p>
+      <p class="mt-2 text-xl font-bold text-blue-600"><%= number_to_currency(@summary[:total_tax_payment], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium text-gray-500">進捗率</p>
+      <p class="mt-2 text-3xl font-bold text-green-600"><%= @summary[:completion_rate] %>%</p>
     </div>
   </div>
 
-  <!-- 保険料推移グラフ -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-900">月次保険料推移</h2>
-        <p class="text-sm text-gray-600 mt-1">過去6ヶ月の保険料総額</p>
-      </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          <% @premium_trends.each do |trend| %>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <span class="text-sm font-medium text-gray-700 w-24"><%= trend[:month] %></span>
-                <span class="text-xs text-gray-500 ml-2">(<%= trend[:staff_count] %>名)</span>
-              </div>
-              <div class="flex-1 mx-4">
-                <div class="bg-gray-200 rounded-full h-2">
-                  <div class="bg-blue-600 rounded-full h-2" style="width: <%= (trend[:total_premium].to_f / @premium_trends.max_by { |t| t[:total_premium] }[:total_premium] * 100).round %>%"></div>
-                </div>
-              </div>
-              <span class="text-sm font-bold text-gray-900 w-32 text-right">¥<%= number_with_delimiter(trend[:total_premium]) %></span>
-            </div>
-          <% end %>
-        </div>
-      </div>
+  <!-- タブナビゲーション -->
+  <div class="bg-white rounded-xl shadow-sm">
+    <div class="border-b border-gray-200 px-6">
+      <nav class="flex -mb-px space-x-8">
+        <button class="tab-button active" data-tab-target="button" data-tab-name="insurance" data-action="click->tab#switch">
+          保険料
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="tax" data-action="click->tab#switch">
+          税金
+        </button>
+        <button class="tab-button" data-tab-target="button" data-tab-name="yearend" data-action="click->tab#switch">
+          年末調整
+        </button>
+      </nav>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-900">健康診断実施状況</h2>
-        <p class="text-sm text-gray-600 mt-1">2025年度の実施状況</p>
-      </div>
-      <div class="p-6">
-        <div class="space-y-6">
-          <% @health_checkup_status.each do |status| %>
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700"><%= status[:status] %></span>
-                <span class="text-sm font-bold text-gray-900"><%= status[:count] %>名 (<%= status[:percentage] %>%)</span>
-              </div>
-              <div class="bg-gray-200 rounded-full h-3">
-                <div class="<%= status[:status] == '実施済' ? 'bg-green-600' : 'bg-yellow-500' %> rounded-full h-3" style="width: <%= status[:percentage] %>%"></div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
-        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 class="text-sm font-bold text-blue-900 mb-2">健康診断のお知らせ</h4>
-          <p class="text-xs text-blue-800">
-            労働安全衛生法により、年1回の定期健康診断が義務付けられています。未実施のスタッフには速やかに実施を促してください。
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 保険証発行待ちリスト -->
-  <% if @pending_insurance_cards.any? %>
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="bg-yellow-50 px-6 py-4 border-b border-yellow-200">
-        <h2 class="text-xl font-bold text-gray-900 flex items-center">
-          <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          保険証発行待ちリスト
-        </h2>
-        <p class="text-sm text-gray-600 mt-1">保険証の発行を待っているスタッフ</p>
-      </div>
-
+    <!-- タブコンテンツ: 保険料 -->
+    <div class="tab-content active p-6" data-tab-target="content" data-tab-name="insurance">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">スタッフ</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申請日</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">発行予定日</th>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">経過日数</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">健康保険</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">厚生年金</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">雇用保険</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <% @pending_insurance_cards.each do |card| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900"><%= card[:staff_name] %></div>
-                  <div class="text-xs text-gray-500"><%= card[:staff_code] %></div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= card[:application_date] %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= card[:expected_issue_date] %>
-                </td>
+            <% @insurance_data.each do |data| %>
+              <tr class="hover:bg-gray-50 cursor-pointer"
+                  data-action="click->insurance-detail#open"
+                  data-insurance='<%= data.to_json %>'>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:health_insurance], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:pension], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:employment_insurance], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right"><%= number_to_currency(data[:total], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    <%= card[:days_elapsed] %>日経過
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '確定' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                    <%= data[:status] %>
                   </span>
                 </td>
               </tr>
@@ -246,5 +90,239 @@
         </table>
       </div>
     </div>
-  <% end %>
+
+    <!-- タブコンテンツ: 税金 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="tax">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">所得税</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">住民税</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @tax_data.each do |data| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:income_tax], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= number_to_currency(data[:resident_tax], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right"><%= number_to_currency(data[:total], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '納付済' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                    <%= data[:status] %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- タブコンテンツ: 年末調整 -->
+    <div class="tab-content hidden p-6" data-tab-target="content" data-tab-name="yearend">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">社員</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">扶養人数</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">保険料控除</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">合計控除</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">還付額</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @year_end_adjustment.each do |data| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= data[:employee_name] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center"><%= data[:dependents] %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= data[:insurance_deduction] ? number_to_currency(data[:insurance_deduction], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right"><%= data[:total_deduction] ? number_to_currency(data[:total_deduction], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-right"><%= data[:refund_amount] ? number_to_currency(data[:refund_amount], unit: "¥", precision: 0, format: "%u%n", delimiter: ",") : '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= data[:status] == '提出済' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                    <%= data[:status] %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insurance Detail Panel -->
+  <aside class="fixed inset-y-0 right-0 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+         data-insurance-detail-target="panel">
+    <!-- Header -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">保険料詳細</h2>
+        <button class="text-gray-400 hover:text-gray-600 p-2"
+                data-action="click->insurance-detail#close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-6">
+      <!-- Staff Name + Status Badge -->
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2" data-insurance-detail-target="staffName"></h3>
+          <p class="text-sm text-gray-500">社員コード: <span data-insurance-detail-target="staffCode"></span></p>
+        </div>
+        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full" data-insurance-detail-target="statusBadge"></span>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex space-x-2">
+        <button class="flex-1 btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          編集
+        </button>
+        <button class="flex-1 btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          PDF出力
+        </button>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-blue-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">健康保険</div>
+          <div class="text-xl font-bold text-blue-600" data-insurance-detail-target="healthInsurance"></div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">厚生年金</div>
+          <div class="text-xl font-bold text-green-600" data-insurance-detail-target="pension"></div>
+        </div>
+        <div class="bg-purple-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">雇用保険</div>
+          <div class="text-xl font-bold text-purple-600" data-insurance-detail-target="employmentInsurance"></div>
+        </div>
+        <div class="bg-orange-50 rounded-lg p-4">
+          <div class="text-xs text-gray-600 mb-1">合計</div>
+          <div class="text-xl font-bold text-orange-600" data-insurance-detail-target="totalAmount"></div>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          基本情報
+        </h4>
+
+        <dl class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">社員名</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="employeeName"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">社員コード</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="employeeCode"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">保険種別</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="insuranceType"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Insurance Details -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          保険詳細
+        </h4>
+
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">保険料</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="amount"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">補償範囲</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="coverage"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">納付日</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="paymentDate"></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">有効期限</dt>
+            <dd class="mt-1 text-sm text-gray-900" data-insurance-detail-target="expiryDate"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Payment History -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          納付履歴
+        </h4>
+
+        <div class="space-y-3">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h5 class="font-medium text-gray-900">2025年度</h5>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                確定
+              </span>
+            </div>
+            <div class="text-sm space-y-1">
+              <div class="flex justify-between">
+                <span class="text-gray-600">健康保険</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="healthInsuranceHistory"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">厚生年金</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="pensionHistory"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">雇用保険</span>
+                <span class="font-medium text-gray-900" data-insurance-detail-target="employmentInsuranceHistory"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+          </svg>
+          備考
+        </h4>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600" data-insurance-detail-target="notes">備考はありません</p>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>
