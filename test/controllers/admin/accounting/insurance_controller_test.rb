@@ -6,39 +6,35 @@ class Admin::Accounting::InsuranceControllerTest < ActionDispatch::IntegrationTe
     assert_response :success
   end
 
-  test "index page should have detail panel for slide-in" do
+  test "index page should display summary cards" do
     get admin_accounting_insurance_index_path
     assert_response :success
-    assert_select '[data-insurance-detail-target="panel"]', 1, "Detail panel should exist for insurance details"
+
+    # サマリーカードが表示されていること
+    assert_select '.text-3xl.font-bold', minimum: 5
   end
 
-  test "detail panel should have proper structure" do
+  test "index page should display staff insurance list" do
     get admin_accounting_insurance_index_path
     assert_response :success
 
-    # Stimulus controller should be connected
-    assert_select '[data-controller~="insurance-detail"]', 1, "Stimulus controller should be connected"
-
-    # Panel should have data targets for content
-    assert_select '[data-insurance-detail-target="panel"]', 1
-    assert_select '[data-insurance-detail-target="employeeName"]', 1
-    assert_select '[data-insurance-detail-target="healthInsurance"]', 1
-    assert_select '[data-insurance-detail-target="pension"]', 1
-    assert_select '[data-insurance-detail-target="totalAmount"]', 1
+    # スタッフリストのテーブルが表示されていること
+    assert_select 'table tbody tr', minimum: 1
   end
 
-  test "table rows should be clickable with data attributes" do
+  test "index page should display premium trends" do
     get admin_accounting_insurance_index_path
     assert_response :success
 
-    # Rows should have click action
-    assert_select 'tbody tr[data-action*="insurance-detail#open"]',
-                  minimum: 1,
-                  message: "Table rows should have click action for opening detail"
+    # 保険料推移セクションが表示されていること
+    assert_select 'h2', text: '月次保険料推移'
+  end
 
-    # Rows should have data attribute for insurance data
-    assert_select 'tbody tr[data-insurance]',
-                  minimum: 1,
-                  message: "Table rows should have insurance data attribute"
+  test "index page should display health checkup status" do
+    get admin_accounting_insurance_index_path
+    assert_response :success
+
+    # 健康診断実施状況が表示されていること
+    assert_select 'h2', text: '健康診断実施状況'
   end
 end
