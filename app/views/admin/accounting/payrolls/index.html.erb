@@ -6,30 +6,6 @@
     <% end %>
   </div>
 
-  <!-- サマリー -->
-  <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4">
-      <div class="text-xs font-medium text-gray-500 mb-1">総計算期間</div>
-      <div class="text-2xl font-bold text-gray-900"><%= @summary[:total_periods] %>期間</div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-      <div class="text-xs font-medium text-gray-500 mb-1">完了済</div>
-      <div class="text-2xl font-bold text-green-600"><%= @summary[:completed_periods] %>期間</div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-      <div class="text-xs font-medium text-gray-500 mb-1">進行中</div>
-      <div class="text-2xl font-bold text-yellow-600"><%= @summary[:in_progress] %>期間</div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-      <div class="text-xs font-medium text-gray-500 mb-1">今年度総支払額</div>
-      <div class="text-2xl font-bold text-blue-600">¥<%= number_with_delimiter(@summary[:total_paid_this_year]) %></div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-      <div class="text-xs font-medium text-gray-500 mb-1">総スタッフ数</div>
-      <div class="text-2xl font-bold text-purple-600"><%= @summary[:total_staff] %>名</div>
-    </div>
-  </div>
-
   <!-- 給与計算期間リスト -->
   <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
