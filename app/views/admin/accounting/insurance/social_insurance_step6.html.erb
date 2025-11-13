@@ -1,7 +1,7 @@
 <div class="p-6">
   <!-- パンくずナビゲーション -->
   <div class="mb-6">
-    <%= link_to "社会保険・税務管理", admin_accounting_insurance_and_tax_index_path, class: "text-blue-600 hover:text-blue-800" %>
+    <%= link_to "社会保険・税務管理", admin_accounting_insurance_index_path, class: "text-blue-600 hover:text-blue-800" %>
     <span class="text-gray-400 mx-2">/</span>
     <span class="text-gray-600">社会保険料計算</span>
     <span class="text-gray-400 mx-2">/</span>
@@ -206,7 +206,7 @@
     <%= link_to social_insurance_step5_admin_accounting_insurance_path(@period), class: "px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
       ← 前へ
     <% end %>
-    <%= link_to admin_accounting_insurance_and_tax_index_path, class: "px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md flex items-center" do %>
+    <%= link_to admin_accounting_insurance_index_path, class: "px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md flex items-center" do %>
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
