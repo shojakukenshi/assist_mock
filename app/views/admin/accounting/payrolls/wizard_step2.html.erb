@@ -1,0 +1,62 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">ステップ2: 給与明細発行</h1>
+  <p class="text-sm text-gray-500 mb-6">期間: <%= @payroll_period[:period] %></p>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">発行サマリー</h2>
+    <div class="grid grid-cols-4 gap-4">
+      <div>
+        <div class="text-xs text-gray-500 mb-1">総スタッフ数</div>
+        <div class="text-2xl font-bold text-gray-900"><%= @slip_summary[:total_staff] %>名</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">発行対象</div>
+        <div class="text-2xl font-bold text-blue-600"><%= @slip_summary[:target_staff] %>名</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">発行済</div>
+        <div class="text-2xl font-bold text-green-600"><%= @slip_summary[:issued] %>名</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">未発行</div>
+        <div class="text-2xl font-bold text-orange-600"><%= @slip_summary[:not_issued] %>名</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow mb-6">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">メールアドレス</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">差引支給額</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">マイページ</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">発行状況</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @staff_slips.each do |staff| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
+              <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-600"><%= staff[:email] %></td>
+            <td class="px-6 py-4 text-right text-sm font-bold text-green-600">¥<%= number_with_delimiter(staff[:net_pay]) %></td>
+            <td class="px-6 py-4 text-center text-sm text-gray-900"><%= staff[:mypage_access] %></td>
+            <td class="px-6 py-4 text-center">
+              <% status_class = staff[:slip_status] == "未発行" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800" %>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full <%= status_class %>"><%= staff[:slip_status] %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between">
+    <%= link_to "戻る", wizard_step1_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50" %>
+    <%= button_to "給与明細を発行", execute_step2_admin_accounting_payroll_path(@payroll_period[:id]), method: :post, class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" %>
+  </div>
+</div>

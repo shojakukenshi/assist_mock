@@ -1,0 +1,37 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">給与計算詳細: <%= @payroll_period[:period] %></h1>
+  
+  <!-- ステータスカード -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">処理ステータス</h2>
+      <span class="text-sm text-gray-500">対象: <%= @payroll_period[:staff_count] %>名</span>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="border rounded-lg p-4 <%= @payroll_period[:status_calculate] == '完了' ? 'bg-green-50' : 'bg-gray-50' %>">
+        <div class="text-sm font-medium text-gray-700 mb-2">ステップ1: 給与計算</div>
+        <div class="text-xs <%= @payroll_period[:status_calculate] == '完了' ? 'text-green-600' : 'text-gray-500' %>"><%= @payroll_period[:status_calculate] %></div>
+      </div>
+      <div class="border rounded-lg p-4 <%= @payroll_period[:status_generate_slips] == '完了' ? 'bg-green-50' : 'bg-gray-50' %>">
+        <div class="text-sm font-medium text-gray-700 mb-2">ステップ2: 給与明細発行</div>
+        <div class="text-xs <%= @payroll_period[:status_generate_slips] == '完了' ? 'text-green-600' : 'text-gray-500' %>"><%= @payroll_period[:status_generate_slips] %></div>
+      </div>
+      <div class="border rounded-lg p-4 <%= @payroll_period[:status_transfer] == '完了' ? 'bg-green-50' : 'bg-gray-50' %>">
+        <div class="text-sm font-medium text-gray-700 mb-2">ステップ3: 給与振込</div>
+        <div class="text-xs <%= @payroll_period[:status_transfer] == '完了' ? 'text-green-600' : 'text-gray-500' %>"><%= @payroll_period[:status_transfer] %></div>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-end">
+      <% case @current_step %>
+      <% when 1 %>
+        <%= link_to "給与計算を開始", wizard_step1_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" %>
+      <% when 2 %>
+        <%= link_to "給与明細発行", wizard_step2_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" %>
+      <% when 3 %>
+        <%= link_to "給与振込", wizard_step3_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" %>
+      <% when 4 %>
+        <%= link_to "完了詳細を確認", wizard_step4_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" %>
+      <% end %>
+    </div>
+  </div>
+</div>

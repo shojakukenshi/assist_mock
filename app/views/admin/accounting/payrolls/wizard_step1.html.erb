@@ -1,0 +1,72 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">ステップ1: 給与計算</h1>
+  <p class="text-sm text-gray-500 mb-6">期間: <%= @payroll_period[:period] %> (<%= @payroll_period[:period_start] %> ～ <%= @payroll_period[:period_end] %>)</p>
+  
+  <!-- 集計サマリー -->
+  <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">総スタッフ数</div>
+      <div class="text-2xl font-bold text-gray-900"><%= @calculation_summary[:total_staff] %>名</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">稼働スタッフ</div>
+      <div class="text-2xl font-bold text-green-600"><%= @calculation_summary[:working_staff] %>名</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">総稼働時間</div>
+      <div class="text-2xl font-bold text-blue-600"><%= @calculation_summary[:total_work_hours] %>h</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">総支給額</div>
+      <div class="text-xl font-bold text-gray-900">¥<%= number_with_delimiter(@calculation_summary[:total_gross_pay]) %></div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">総控除額</div>
+      <div class="text-xl font-bold text-red-600">¥<%= number_with_delimiter(@calculation_summary[:total_deductions]) %></div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-xs font-medium text-gray-500 mb-1">差引支給額</div>
+      <div class="text-xl font-bold text-green-600">¥<%= number_with_delimiter(@calculation_summary[:total_net_pay]) %></div>
+    </div>
+  </div>
+
+  <!-- スタッフ別給与計算データ -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">稼働日数</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">稼働時間</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">時給</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">総支給額</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">控除額</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">差引支給額</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @staff_payrolls.each do |staff| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
+                <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
+              </td>
+              <td class="px-4 py-3 text-right text-sm text-gray-900"><%= staff[:work_days] %>日</td>
+              <td class="px-4 py-3 text-right text-sm text-gray-900"><%= staff[:total_work_hours] %>h</td>
+              <td class="px-4 py-3 text-right text-sm text-gray-900">¥<%= number_with_delimiter(staff[:hourly_rate]) %></td>
+              <td class="px-4 py-3 text-right text-sm font-medium text-gray-900">¥<%= number_with_delimiter(staff[:gross_pay]) %></td>
+              <td class="px-4 py-3 text-right text-sm text-red-600">¥<%= number_with_delimiter(staff[:total_deductions]) %></td>
+              <td class="px-4 py-3 text-right text-sm font-bold text-green-600">¥<%= number_with_delimiter(staff[:net_pay]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex justify-between">
+    <%= link_to "戻る", admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50" %>
+    <%= button_to "給与計算を確定", execute_step1_admin_accounting_payroll_path(@payroll_period[:id]), method: :post, class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" %>
+  </div>
+</div>
