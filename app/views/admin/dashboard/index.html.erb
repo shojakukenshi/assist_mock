@@ -1,36 +1,31 @@
 <div class="space-y-6">
-  <!-- ページタイトル -->
+  <!-- ページタイトルと部門切り替え -->
   <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-      <p class="mt-1 text-sm text-gray-500">部門別業務管理システム</p>
-    </div>
-  </div>
+    <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
 
-  <!-- 部門切り替えタブ -->
-  <div class="border-b border-gray-200">
-    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-      <%= link_to admin_dashboard_path(department: "sales"), class: "#{@current_department == 'sales' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" do %>
-        <svg class="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- 部門切り替えボタン -->
+    <div class="flex gap-3">
+      <%= link_to admin_dashboard_path(department: "sales"), class: "#{@current_department == 'sales' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'} inline-flex items-center px-6 py-3 rounded-lg font-medium text-base transition-all duration-200" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         営業部門
       <% end %>
 
-      <%= link_to admin_dashboard_path(department: "staffing"), class: "#{@current_department == 'staffing' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" do %>
-        <svg class="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <%= link_to admin_dashboard_path(department: "staffing"), class: "#{@current_department == 'staffing' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'} inline-flex items-center px-6 py-3 rounded-lg font-medium text-base transition-all duration-200" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
         手配部門
       <% end %>
 
-      <%= link_to admin_dashboard_path(department: "accounting"), class: "#{@current_department == 'accounting' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" do %>
-        <svg class="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <%= link_to admin_dashboard_path(department: "accounting"), class: "#{@current_department == 'accounting' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'} inline-flex items-center px-6 py-3 rounded-lg font-medium text-base transition-all duration-200" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
         </svg>
         経理部門
       <% end %>
-    </nav>
+    </div>
   </div>
 
   <!-- 営業部門ダッシュボード -->

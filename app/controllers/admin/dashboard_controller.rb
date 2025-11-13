@@ -22,15 +22,13 @@ module Admin
 
     # 営業部門ダッシュボード
     def setup_sales_dashboard
-      # 案件進捗サマリー
+      # KPIサマリー（パイプラインページと同じ形式）
       @project_summary = {
-        total_projects: 45,
-        in_progress: 28,
-        proposal_stage: 12,
-        completed_this_month: 5,
-        revenue_this_month: 52_800_000,
-        revenue_target: 60_000_000,
-        achievement_rate: 88.0
+        total_deals: 10,
+        total_value: 31_800_000,
+        expected_revenue: 24_300_000,
+        success_rate: 85.0,
+        average_lead_time: 18 # 日数
       }
 
       # 近日中のアクションリスト
@@ -71,12 +69,12 @@ module Admin
 
       # 月次目標達成率（月別推移）
       @monthly_achievement = [
-        { month: "2025-06", target: 55_000_000, actual: 48_500_000, rate: 88.2 },
-        { month: "2025-07", target: 58_000_000, actual: 52_300_000, rate: 90.2 },
-        { month: "2025-08", target: 60_000_000, actual: 56_800_000, rate: 94.7 },
-        { month: "2025-09", target: 60_000_000, actual: 51_200_000, rate: 85.3 },
-        { month: "2025-10", target: 62_000_000, actual: 58_900_000, rate: 95.0 },
-        { month: "2025-11", target: 60_000_000, actual: 52_800_000, rate: 88.0 }
+        { month: "6月", target: 5500, actual: 4850, rate: 88.2 },
+        { month: "7月", target: 5800, actual: 5230, rate: 90.2 },
+        { month: "8月", target: 6000, actual: 5680, rate: 94.7 },
+        { month: "9月", target: 6000, actual: 5120, rate: 85.3 },
+        { month: "10月", target: 6200, actual: 5890, rate: 95.0 },
+        { month: "11月", target: 6000, actual: 5280, rate: 88.0 }
       ]
 
       # 経費登録通知
@@ -130,12 +128,12 @@ module Admin
 
       # 月次稼働状況の推移
       @monthly_utilization = [
-        { month: "2025-06", total: 238, active: 145, rate: 60.9 },
-        { month: "2025-07", total: 240, active: 152, rate: 63.3 },
-        { month: "2025-08", total: 242, active: 160, rate: 66.1 },
-        { month: "2025-09", total: 243, active: 155, rate: 63.8 },
-        { month: "2025-10", total: 244, active: 162, rate: 66.4 },
-        { month: "2025-11", total: 245, active: 158, rate: 64.5 }
+        { month: "6月", total: 238, active: 145, rate: 60.9 },
+        { month: "7月", total: 240, active: 152, rate: 63.3 },
+        { month: "8月", total: 242, active: 160, rate: 66.1 },
+        { month: "9月", total: 243, active: 155, rate: 63.8 },
+        { month: "10月", total: 244, active: 162, rate: 66.4 },
+        { month: "11月", total: 245, active: 158, rate: 64.5 }
       ]
 
       # 資格有効期限アラート
