@@ -1,0 +1,218 @@
+<!-- 案件進捗サマリー -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">総案件数</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @project_summary[:total_projects] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">進行中</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @project_summary[:in_progress] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">提案段階</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @project_summary[:proposal_stage] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">目標達成率</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @project_summary[:achievement_rate] %>%</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- メインコンテンツエリア -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <!-- 近日中のアクションリスト -->
+  <div class="lg:col-span-2">
+    <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">近日中のアクションリスト</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">アクション</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">クライアント</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">期限</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">優先度</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ステータス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @action_list.each do |action| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                  <div class="text-sm font-medium text-gray-900"><%= action[:title] %></div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500"><%= action[:client] %></td>
+                <td class="px-6 py-4 text-sm text-gray-500"><%= action[:deadline] %></td>
+                <td class="px-6 py-4">
+                  <% if action[:priority] == "high" %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">高</span>
+                  <% else %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">中</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500"><%= action[:status] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 経費登録通知 -->
+  <div class="lg:col-span-1">
+    <div class="bg-white shadow-sm rounded-xl overflow-hidden mb-6">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">経費登録通知</h2>
+      </div>
+      <div class="px-6 py-4">
+        <ul class="space-y-3">
+          <% @expense_notifications.each do |expense| %>
+            <li class="border-l-4 border-yellow-400 pl-4 py-2 bg-yellow-50">
+              <div class="text-sm font-medium text-gray-900"><%= expense[:staff_name] %></div>
+              <div class="text-sm text-gray-600"><%= expense[:project] %></div>
+              <div class="text-sm text-gray-500 mt-1">
+                ¥<%= number_with_delimiter(expense[:amount]) %> - <%= expense[:date] %>
+              </div>
+              <span class="inline-flex mt-2 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                <%= expense[:status] %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 入金遅延アラート + 月次目標達成率 -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- 入金遅延アラート -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">入金遅延アラート</h2>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <%= @payment_delay_alerts.length %>件
+        </span>
+      </div>
+    </div>
+    <div class="px-6 py-4">
+      <ul class="space-y-4">
+        <% @payment_delay_alerts.each do |alert| %>
+          <li class="border-l-4 border-red-500 pl-4 py-3 bg-red-50">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-sm font-medium text-gray-900"><%= alert[:client] %></div>
+                <div class="text-sm text-gray-600 mt-1">請求書番号: <%= alert[:invoice_number] %></div>
+                <div class="text-sm text-gray-600">金額: ¥<%= number_with_delimiter(alert[:amount]) %></div>
+                <div class="text-sm text-gray-500 mt-1">期限: <%= alert[:due_date] %></div>
+              </div>
+              <span class="inline-flex px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">
+                <%= alert[:delay_days] %>日遅延
+              </span>
+            </div>
+            <div class="mt-2">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-900">
+                <%= alert[:status] %>
+              </span>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 月次目標達成率 -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">月次目標達成率（推移）</h2>
+    </div>
+    <div class="px-6 py-4">
+      <div class="space-y-4">
+        <% @monthly_achievement.each do |month| %>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700"><%= month[:month] %></span>
+              <span class="text-sm font-semibold <%= month[:rate] >= 90 ? 'text-green-600' : 'text-yellow-600' %>">
+                <%= month[:rate] %>%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="<%= month[:rate] >= 90 ? 'bg-green-600' : 'bg-yellow-500' %> h-2.5 rounded-full" style="width: <%= month[:rate] %>%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span>実績: ¥<%= number_with_delimiter(month[:actual]) %></span>
+              <span>目標: ¥<%= number_with_delimiter(month[:target]) %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

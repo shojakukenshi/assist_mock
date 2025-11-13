@@ -1,0 +1,299 @@
+<!-- 稼働状況サマリー -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">総スタッフ数</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @staffing_summary[:total_staff] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">稼働中</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @staffing_summary[:active_staff] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">待機中</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @staffing_summary[:available_staff] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow-sm rounded-xl">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">稼働率</dt>
+            <dd class="text-2xl font-semibold text-gray-900"><%= @staffing_summary[:utilization_rate] %>%</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- メインコンテンツエリア -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <!-- 要手配案件アラート -->
+  <div class="lg:col-span-2">
+    <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">要手配案件アラート</h2>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            <%= @assignment_required_alerts.length %>件
+          </span>
+        </div>
+      </div>
+      <div class="px-6 py-4">
+        <div class="space-y-4">
+          <% @assignment_required_alerts.each do |alert| %>
+            <div class="border-l-4 <%= alert[:urgency] == 'high' ? 'border-red-500 bg-red-50' : 'border-yellow-500 bg-yellow-50' %> pl-4 py-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <div class="text-sm font-medium text-gray-900"><%= alert[:project_name] %></div>
+                  <div class="text-sm text-gray-600 mt-1"><%= alert[:client] %></div>
+                  <div class="text-sm text-gray-700 mt-2">
+                    必要: <%= alert[:required_staff] %>名 / 配置済: <%= alert[:assigned_staff] %>名 /
+                    <span class="font-semibold text-red-600">不足: <%= alert[:shortage] %>名</span>
+                  </div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    開始日: <%= alert[:event_date] %>（あと<%= alert[:days_until_event] %>日）
+                  </div>
+                </div>
+                <% if alert[:urgency] == "high" %>
+                  <span class="inline-flex px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">緊急</span>
+                <% else %>
+                  <span class="inline-flex px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800">注意</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 各種アラート -->
+  <div class="lg:col-span-1 space-y-6">
+    <!-- 資格有効期限アラート -->
+    <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-base font-semibold text-gray-900">資格有効期限</h2>
+      </div>
+      <div class="px-6 py-4">
+        <ul class="space-y-3">
+          <% @qualification_alerts.take(4).each do |alert| %>
+            <li class="text-sm">
+              <div class="font-medium text-gray-900"><%= alert[:staff_name] %> (<%= alert[:staff_code] %>)</div>
+              <div class="text-gray-600 mt-1"><%= alert[:qualification] %></div>
+              <div class="flex justify-between items-center mt-1">
+                <span class="text-gray-500"><%= alert[:expiry_date] %></span>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <%= alert[:days_remaining] <= 7 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+                  残り<%= alert[:days_remaining] %>日
+                </span>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <!-- スタッフ応募通知 -->
+    <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-semibold text-gray-900">スタッフ応募</h2>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <%= @staffing_summary[:new_applications] %>件
+          </span>
+        </div>
+      </div>
+      <div class="px-6 py-4">
+        <ul class="space-y-3">
+          <% @staff_application_notifications.each do |app| %>
+            <li class="text-sm border-l-4 border-blue-400 pl-3 py-2 bg-blue-50">
+              <div class="font-medium text-gray-900"><%= app[:staff_name] %></div>
+              <div class="text-gray-600 mt-1">
+                <%= app[:desired_positions].join(", ") %>
+              </div>
+              <div class="flex justify-between items-center mt-1">
+                <span class="text-gray-500 text-xs"><%= app[:application_date] %></span>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                  <%= app[:status] %>
+                </span>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 勤怠異常アラート + 月次稼働状況 -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- 勤怠異常アラート -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">勤怠異常アラート</h2>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+          <%= @attendance_alerts.length %>件
+        </span>
+      </div>
+    </div>
+    <div class="px-6 py-4">
+      <ul class="space-y-3">
+        <% @attendance_alerts.each do |alert| %>
+          <li class="border-l-4
+            <%= alert[:severity] == 'critical' ? 'border-red-500 bg-red-50' : alert[:severity] == 'warning' ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50' %>
+            pl-4 py-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-sm font-medium text-gray-900">
+                  <%= alert[:staff_name] %> (<%= alert[:staff_code] %>)
+                </div>
+                <div class="text-sm text-gray-700 mt-1"><%= alert[:issue] %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= alert[:date] %></div>
+              </div>
+              <% if alert[:severity] == "critical" %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">重大</span>
+              <% elsif alert[:severity] == "warning" %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-orange-100 text-orange-800">警告</span>
+              <% else %>
+                <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">情報</span>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 月次稼働状況の推移 -->
+  <div class="bg-white shadow-sm rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">月次稼働状況の推移</h2>
+    </div>
+    <div class="px-6 py-4">
+      <div class="space-y-4">
+        <% @monthly_utilization.each do |month| %>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700"><%= month[:month] %></span>
+              <span class="text-sm font-semibold <%= month[:rate] >= 65 ? 'text-green-600' : 'text-yellow-600' %>">
+                <%= month[:rate] %>%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="<%= month[:rate] >= 65 ? 'bg-green-600' : 'bg-yellow-500' %> h-2.5 rounded-full" style="width: <%= month[:rate] %>%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span>稼働: <%= month[:active] %>名</span>
+              <span>総数: <%= month[:total] %>名</span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- サポート通知 -->
+<div class="bg-white shadow-sm rounded-xl overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">サポート通知</h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日時</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">種別</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">内容</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ステータス</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @support_notifications.each do |notification| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 text-sm text-gray-500"><%= notification[:date] %></td>
+            <td class="px-6 py-4 text-sm font-medium text-gray-900"><%= notification[:staff] %></td>
+            <td class="px-6 py-4">
+              <% case notification[:type] %>
+              <% when "問い合わせ" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">問い合わせ</span>
+              <% when "トラブル報告" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">トラブル報告</span>
+              <% when "シフト変更依頼" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">シフト変更</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900"><%= notification[:content] %></td>
+            <td class="px-6 py-4">
+              <% case notification[:status] %>
+              <% when "対応中" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">対応中</span>
+              <% when "解決済" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">解決済</span>
+              <% when "承認待ち" %>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">承認待ち</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
