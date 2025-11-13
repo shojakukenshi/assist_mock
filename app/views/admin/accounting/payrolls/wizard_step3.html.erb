@@ -1,0 +1,67 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">ステップ3: 給与振込</h1>
+  <p class="text-sm text-gray-500 mb-6">期間: <%= @payroll_period[:period] %> | 振込予定日: <%= @transfer_summary[:transfer_date] %></p>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">振込サマリー</h2>
+    <div class="grid grid-cols-4 gap-4">
+      <div>
+        <div class="text-xs text-gray-500 mb-1">振込対象</div>
+        <div class="text-2xl font-bold text-blue-600"><%= @transfer_summary[:total_staff] %>名</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">総振込額</div>
+        <div class="text-xl font-bold text-gray-900">¥<%= number_with_delimiter(@transfer_summary[:total_amount]) %></div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">振込済</div>
+        <div class="text-2xl font-bold text-green-600"><%= @transfer_summary[:transferred] %>名</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 mb-1">未振込</div>
+        <div class="text-2xl font-bold text-orange-600"><%= @transfer_summary[:not_transferred] %>名</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow mb-6">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">スタッフ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">銀行情報</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">口座情報</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">振込額</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ステータス</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @staff_transfers.each do |staff| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
+              <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <%= staff[:bank_name] %><br>
+              <span class="text-xs text-gray-500"><%= staff[:branch_name] %></span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <%= staff[:account_type] %> <%= staff[:account_number] %><br>
+              <span class="text-xs text-gray-500"><%= staff[:account_holder] %></span>
+            </td>
+            <td class="px-6 py-4 text-right text-sm font-bold text-green-600">¥<%= number_with_delimiter(staff[:net_pay]) %></td>
+            <td class="px-6 py-4 text-center">
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800"><%= staff[:transfer_status] %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between">
+    <%= link_to "戻る", wizard_step2_admin_accounting_payroll_path(@payroll_period[:id]), class: "px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50" %>
+    <%= button_to "給与を振り込む", execute_step3_admin_accounting_payroll_path(@payroll_period[:id]), method: :post, class: "px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" %>
+  </div>
+</div>

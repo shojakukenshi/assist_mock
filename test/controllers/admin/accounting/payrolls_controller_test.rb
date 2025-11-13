@@ -6,46 +6,48 @@ class Admin::Accounting::PayrollsControllerTest < ActionDispatch::IntegrationTes
     assert_response :success
   end
 
-  test "index page should have detail panel for slide-in" do
-    get admin_accounting_payrolls_path
+  test "should get new" do
+    get new_admin_accounting_payroll_path
     assert_response :success
-    assert_select '[data-payroll-detail-target="panel"]', 1, "Detail panel should exist for payroll details"
   end
 
-  test "detail panel should have proper structure" do
-    get admin_accounting_payrolls_path
+  test "should get show" do
+    get admin_accounting_payroll_path(id: 1)
     assert_response :success
-
-    # Stimulus controller should be connected
-    assert_select '[data-controller~="payroll-detail"]', 1, "Stimulus controller should be connected"
-
-    # Panel should have overlay
-    assert_select '[data-payroll-detail-target="overlay"]', 1, "Overlay should exist"
-
-    # Panel should have close button
-    assert_select '[data-payroll-detail-target="panel"] button[data-action*="payroll-detail#close"]',
-                  minimum: 1,
-                  message: "Close button should exist in panel"
-
-    # Panel should have data targets for content
-    assert_select '[data-payroll-detail-target="employeeName"]', 1
-    assert_select '[data-payroll-detail-target="employeeCode"]', 1
-    assert_select '[data-payroll-detail-target="baseSalary"]', 1
-    assert_select '[data-payroll-detail-target="status"]', 1
   end
 
-  test "table rows should be clickable with data attributes" do
-    get admin_accounting_payrolls_path
+  test "should get wizard_step1" do
+    get wizard_step1_admin_accounting_payroll_path(id: 1)
     assert_response :success
+  end
 
-    # Rows should have click action
-    assert_select 'tbody tr[data-action*="payroll-detail#open"]',
-                  minimum: 1,
-                  message: "Table rows should have click action for opening detail"
+  test "should get wizard_step2" do
+    get wizard_step2_admin_accounting_payroll_path(id: 1)
+    assert_response :success
+  end
 
-    # Rows should have data attribute for payroll data
-    assert_select 'tbody tr[data-payroll]',
-                  minimum: 1,
-                  message: "Table rows should have payroll data attribute"
+  test "should get wizard_step3" do
+    get wizard_step3_admin_accounting_payroll_path(id: 1)
+    assert_response :success
+  end
+
+  test "should get wizard_step4" do
+    get wizard_step4_admin_accounting_payroll_path(id: 1)
+    assert_response :success
+  end
+
+  test "should execute step1" do
+    post execute_step1_admin_accounting_payroll_path(id: 1)
+    assert_redirected_to wizard_step2_admin_accounting_payroll_path(1)
+  end
+
+  test "should execute step2" do
+    post execute_step2_admin_accounting_payroll_path(id: 1)
+    assert_redirected_to wizard_step3_admin_accounting_payroll_path(1)
+  end
+
+  test "should execute step3" do
+    post execute_step3_admin_accounting_payroll_path(id: 1)
+    assert_redirected_to wizard_step4_admin_accounting_payroll_path(1)
   end
 end

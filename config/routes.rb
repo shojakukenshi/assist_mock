@@ -52,7 +52,17 @@ Rails.application.routes.draw do
 
     # 経理部門
     namespace :accounting do
-      resources :payrolls
+      resources :payrolls do
+        member do
+          get :wizard_step1           # ステップ1: 給与計算
+          post :execute_step1
+          get :wizard_step2           # ステップ2: 給与明細発行
+          post :execute_step2
+          get :wizard_step3           # ステップ3: 給与振込
+          post :execute_step3
+          get :wizard_step4           # ステップ4: 完了
+        end
+      end
       resources :insurance
       resources :expenses
       resources :receivables
