@@ -95,7 +95,37 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :insurance
+      # 社会保険・税務管理（期間別処理）
+      resources :insurance do
+        member do
+          # 社会保険料計算フロー
+          get :social_insurance_step1
+          post :execute_social_insurance_step1
+          get :social_insurance_step2
+          post :execute_social_insurance_step2
+          get :social_insurance_step3
+          post :execute_social_insurance_step3
+          get :social_insurance_step4
+          post :execute_social_insurance_step4
+          get :social_insurance_step5
+          post :execute_social_insurance_step5
+          get :social_insurance_step6
+
+          # 源泉徴収処理フロー
+          get :withholding_tax_step1
+          post :execute_withholding_tax_step1
+          get :withholding_tax_step2
+          post :execute_withholding_tax_step2
+          get :withholding_tax_step3
+          post :execute_withholding_tax_step3
+          get :withholding_tax_step4
+          post :execute_withholding_tax_step4
+          get :withholding_tax_step5
+          post :execute_withholding_tax_step5
+          get :withholding_tax_step6
+        end
+      end
+
       resources :expenses
       resources :receivables
       resources :financials

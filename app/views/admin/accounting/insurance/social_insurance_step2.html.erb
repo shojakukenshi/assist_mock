@@ -1,0 +1,213 @@
+<div class="p-6">
+  <!-- パンくずナビゲーション -->
+  <div class="mb-6">
+    <%= link_to "社会保険・税務管理", admin_accounting_insurance_and_tax_index_path, class: "text-blue-600 hover:text-blue-800" %>
+    <span class="text-gray-400 mx-2">/</span>
+    <span class="text-gray-600">社会保険料計算</span>
+    <span class="text-gray-400 mx-2">/</span>
+    <span class="text-gray-900 font-semibold">ステップ2: 保険料率を適用</span>
+  </div>
+
+  <!-- ページヘッダー -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg p-6 mb-8 text-white">
+    <h1 class="text-3xl font-bold mb-2">社会保険料計算</h1>
+    <p class="text-blue-100">給与計算期間: <%= @period %></p>
+  </div>
+
+  <!-- ステップインジケーター -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold">✓</div>
+        <div class="flex-1 h-1 bg-blue-600 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold">2</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">3</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">4</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">5</div>
+        <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+      </div>
+      <div class="flex items-center">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold">6</div>
+      </div>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-600">
+      <span class="flex-1 text-center text-gray-400">標準報酬月額確認</span>
+      <span class="flex-1 text-center font-semibold text-blue-600">保険料率適用</span>
+      <span class="flex-1 text-center">負担分計算</span>
+      <span class="flex-1 text-center">介護保険料</span>
+      <span class="flex-1 text-center">月次保険料確定</span>
+      <span class="flex-1 text-center">変更届作成</span>
+    </div>
+  </div>
+
+  <!-- 保険料率カード -->
+  <div class="grid grid-cols-2 gap-6 mb-8">
+    <!-- 健康保険 -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-500">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900"><%= @insurance_rates[:health_insurance][:name] %></h3>
+        <p class="text-sm text-gray-600"><%= @insurance_rates[:health_insurance][:type] %></p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-sm text-gray-600 mb-1">全体料率</div>
+            <div class="text-2xl font-bold text-gray-900"><%= @insurance_rates[:health_insurance][:rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">従業員負担</div>
+            <div class="text-2xl font-bold text-green-600"><%= @insurance_rates[:health_insurance][:employee_rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">会社負担</div>
+            <div class="text-2xl font-bold text-blue-600"><%= @insurance_rates[:health_insurance][:company_rate] %>%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 介護保険 -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-purple-500">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900"><%= @insurance_rates[:nursing_care][:name] %></h3>
+        <p class="text-sm text-gray-600"><%= @insurance_rates[:nursing_care][:applicable_age] %></p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-sm text-gray-600 mb-1">全体料率</div>
+            <div class="text-2xl font-bold text-gray-900"><%= @insurance_rates[:nursing_care][:rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">従業員負担</div>
+            <div class="text-2xl font-bold text-green-600"><%= @insurance_rates[:nursing_care][:employee_rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">会社負担</div>
+            <div class="text-2xl font-bold text-blue-600"><%= @insurance_rates[:nursing_care][:company_rate] %>%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 厚生年金保険 -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-indigo-500">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900"><%= @insurance_rates[:employees_pension][:name] %></h3>
+        <p class="text-sm text-gray-600"><%= @insurance_rates[:employees_pension][:type] %></p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-sm text-gray-600 mb-1">全体料率</div>
+            <div class="text-2xl font-bold text-gray-900"><%= @insurance_rates[:employees_pension][:rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">従業員負担</div>
+            <div class="text-2xl font-bold text-green-600"><%= @insurance_rates[:employees_pension][:employee_rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">会社負担</div>
+            <div class="text-2xl font-bold text-blue-600"><%= @insurance_rates[:employees_pension][:company_rate] %>%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 雇用保険 -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-yellow-500">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900"><%= @insurance_rates[:employment_insurance][:name] %></h3>
+        <p class="text-sm text-gray-600"><%= @insurance_rates[:employment_insurance][:type] %></p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-sm text-gray-600 mb-1">全体料率</div>
+            <div class="text-2xl font-bold text-gray-900"><%= @insurance_rates[:employment_insurance][:rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">従業員負担</div>
+            <div class="text-2xl font-bold text-green-600"><%= @insurance_rates[:employment_insurance][:employee_rate] %>%</div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-600 mb-1">会社負担</div>
+            <div class="text-2xl font-bold text-blue-600"><%= @insurance_rates[:employment_insurance][:company_rate] %>%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 適用例 -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900">保険料率適用例</h2>
+      <p class="text-sm text-gray-600 mt-1">スタッフごとの適用保険料率</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">スタッフ</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年齢</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">標準報酬月額</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">適用保険</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @staff_sample.each do |staff| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= staff[:staff_name] %></div>
+                <div class="text-xs text-gray-500"><%= staff[:staff_code] %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= staff[:age] %>歳</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
+                ¥<%= number_with_delimiter(staff[:standard_monthly_remuneration]) %>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  <% staff[:applicable_rates].each do |rate| %>
+                    <% badge_color = case rate
+                      when "健康保険" then "bg-green-100 text-green-800"
+                      when "介護保険" then "bg-purple-100 text-purple-800"
+                      when "厚生年金保険" then "bg-indigo-100 text-indigo-800"
+                      when "雇用保険" then "bg-yellow-100 text-yellow-800"
+                      else "bg-gray-100 text-gray-800"
+                    end %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= badge_color %>">
+                      <%= rate %>
+                    </span>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- アクションボタン -->
+  <div class="flex justify-between items-center">
+    <%= link_to social_insurance_step1_admin_accounting_insurance_path(@period), class: "px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+      ← 前へ
+    <% end %>
+    <%= button_to execute_social_insurance_step2_admin_accounting_insurance_path(@period), method: :post, class: "px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md" do %>
+      次へ: 負担分を計算 →
+    <% end %>
+  </div>
+</div>
